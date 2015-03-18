@@ -21,7 +21,8 @@ dists.list:
 
 # targets that will get invoked by dh: clean, build, test
 
-#clean:
+clean:
+	rm -rf dists/ scratch/ dists.list
 
 #build:
 
