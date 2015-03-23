@@ -1,0 +1,6 @@
+scratch/
+our-build/
+debian/ndn-perl-modules.debhelper.log
+debian/files
+debian/ndn-perl-modules.substvars
+debian/ndn-perl-modules
