@@ -1,5 +1,5 @@
 Source: ndn-perl-modules
-Section: unknown
+Section: perl
 Priority: optional
 Maintainer: Chris Weyl <chris.weyl@dreamhost.com>
 Build-Depends: debhelper (>= 8.0.0)
