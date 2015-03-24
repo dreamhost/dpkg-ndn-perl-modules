@@ -1,5 +1,5 @@
-ndn-perl-modules (5.20.2-0~pre0) unstable; urgency=low
+ndn-perl-modules (5.20.2~14.04~ndn0) trusty; urgency=low
 
   * Initial Release.
 
- -- Chris Weyl <Chris Weyl <cweyl@alumni.drew.edu>>  Wed, 18 Mar 2015 09:35:35 -0700
+ -- Chris Weyl <chris.weyl@dreamhost.com>  Wed, 18 Mar 2015 09:35:35 -0700
