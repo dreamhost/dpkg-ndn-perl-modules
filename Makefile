@@ -1,11 +1,12 @@
 
 # change this to "our" perl; but for now...
 #PERL = $(/opt/ndn-perl/bin/perl)
-PERL        := PERL5LIB="" PERL_CPANM_OPT="" /usr/bin/perl
+PERL        := PERL5LIB="" PERL_CPANM_OPT="" /opt/ndn-perl/bin/perl
 PERL_PREFIX := $(shell $(PERL) -MConfig -E 'say $$Config{prefix}')
 
 # this should be changed to 'Task::NDN' or the like
 PRIMARY_DIST := Moose
+# if we want to be using a DPAN external to this repo, too
 CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
 HARNESS_OPTIONS :=
 # we may want to set this to TAP::Harness::Restricted
