@@ -1,3 +1,9 @@
+ndn-perl-modules (5.20.2~14.04~ndn1) trusty; urgency=medium
+
+  * Use /opt/ndn-perl/bin/perl vs /usr/bin/perl.
+
+ -- Chris Weyl <cweyl@alumni.drew.edu>  Mon, 23 Mar 2015 21:11:04 -0700
+
 ndn-perl-modules (5.20.2~14.04~ndn0) trusty; urgency=low
 
   * Initial Release.
