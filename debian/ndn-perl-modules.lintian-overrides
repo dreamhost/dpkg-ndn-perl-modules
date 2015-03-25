@@ -1,0 +1,2 @@
+ndn-perl-modules binary: dir-or-file-in-opt
+ndn-perl-modules binary: wrong-path-for-interpreter /opt/ndn-perl/bin/*
