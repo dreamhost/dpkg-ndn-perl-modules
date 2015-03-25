@@ -83,6 +83,7 @@ install:
 	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
 	find $(DESTDIR) -name 'perllocal.pod' -exec rm -vf {} \;
 	find $(DESTDIR) -empty -type d -delete
+	chmod -Rf a+rX,u+w,g-w,o-w $(DESTDIR)
 
 test:
 	# no-op, already done in build
