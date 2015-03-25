@@ -82,7 +82,7 @@ install:
 	find $(DESTDIR) -empty -name '*.bs' -exec rm -vf {} \;
 	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
 	find $(DESTDIR) -name 'perllocal.pod' -exec rm -vf {} \;
-	find $(DESTDIR) -empty -type d -exec rmdir {} \;
+	find $(DESTDIR) -empty -type d -delete
 
 test:
 	# no-op, already done in build
