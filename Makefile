@@ -23,7 +23,7 @@ tmpfile := $(shell tempfile)
 
 # targets to control our dist cache, etc
 
-.PHONY: archname dpan index ndn-prefix commit-dists
+.PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan
 
 # dh will run the default target first, so make this the default!
 all: build
@@ -65,6 +65,9 @@ dpan: index
 
 index: dists
 	orepan2-indexer ./dists/
+
+rebuild-dpan: dev-clean
+	$(MAKE) dpan
 
 # targets that will get invoked by dh: clean, build, test
 
