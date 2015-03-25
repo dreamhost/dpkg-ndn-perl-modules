@@ -6,6 +6,7 @@ PERL_PREFIX := $(shell $(PERL) -MConfig -E 'say $$Config{prefix}')
 
 # this should be changed to 'Task::NDN' or the like
 PRIMARY_DIST := Moose
+DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
 # if we want to be using a DPAN external to this repo, too
 CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
 HARNESS_OPTIONS :=
@@ -57,7 +58,7 @@ dists:
 	# download dists
 	$(PERL) ./cpanm -q \
 		--self-contained -L scratch/ --save-dists=dists \
-		$(PRIMARY_DIST)
+		$(DPAN_BUILD_DISTS)
 	$(MAKE) commit-dists
 
 dpan: index
