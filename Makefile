@@ -54,6 +54,7 @@ commit-dists:
 		| tee -a $(tmpfile)
 	git commit --file=$(tmpfile)
 
+# note we deliberately do *not* set a CPAN mirror here.  This is intentional.
 dists:
 	# download dists
 	$(PERL) ./cpanm -q \
