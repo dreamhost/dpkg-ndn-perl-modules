@@ -73,16 +73,16 @@ clean:
 build:
 	$(PERL) ./cpanm $(BUILD_CPANM_OPTS) -L $(OURBUILD) $(PRIMARY_DIST)
 	# trim the little things...
-	find $(OURBUILD) -empty -name '*.bs' -exec rm -vf {} \;
-	find $(OURBUILD) -name '.packlist' -exec rm -vf {} \;
-	find $(OURBUILD) -name 'perllocal.pod' -exec rm -vf {} \;
-	find $(OURBUILD) -empty -type d -exec rmdir {} \;
 
 install:
 	mkdir -p $(DESTDIR)/$(PERL_PREFIX)
-	mv -v $(OURBUILD)/* $(DESTDIR)/$(PERL_PREFIX)/
+	mv $(OURBUILD)/* $(DESTDIR)/$(PERL_PREFIX)/
+	# clean it all up
+	find $(DESTDIR) -empty -name '*.bs' -exec rm -vf {} \;
+	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
+	find $(DESTDIR) -name 'perllocal.pod' -exec rm -vf {} \;
+	find $(DESTDIR) -empty -type d -exec rmdir {} \;
 
 test:
 	# no-op, already done in build
-
 
