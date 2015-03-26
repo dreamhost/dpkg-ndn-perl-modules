@@ -12,7 +12,7 @@ CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
 HARNESS_OPTIONS :=
 # we may want to set this to TAP::Harness::Restricted
 HARNESS_SUBCLASS :=
-BUILD_CPANM_OPTS := -q --from file://`pwd`/dists/
+BUILD_CPANM_OPTS := -q --from file://`pwd`/dists/ --exclude-vendor
 
 # our build target
 OURBUILD := our-build
@@ -57,7 +57,7 @@ commit-dists:
 # note we deliberately do *not* set a CPAN mirror here.  This is intentional.
 dists:
 	# download dists
-	$(PERL) ./cpanm -q \
+	$(PERL) ./cpanm -q --exclude-vendor \
 		--self-contained -L scratch/ --save-dists=dists \
 		$(DPAN_BUILD_DISTS)
 
