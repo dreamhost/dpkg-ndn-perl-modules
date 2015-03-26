@@ -60,7 +60,6 @@ dists:
 	$(PERL) ./cpanm -q \
 		--self-contained -L scratch/ --save-dists=dists \
 		$(DPAN_BUILD_DISTS)
-	$(MAKE) commit-dists
 
 dpan: index
 
@@ -69,6 +68,7 @@ index: dists
 
 rebuild-dpan: dev-clean
 	$(MAKE) dpan
+	$(MAKE) commit-dists
 
 # targets that will get invoked by dh: clean, build, test
 
