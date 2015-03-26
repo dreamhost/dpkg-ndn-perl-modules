@@ -3,6 +3,14 @@
 #PERL = $(/opt/ndn-perl/bin/perl)
 PERL        := PERL5LIB="" PERL_CPANM_OPT="" /opt/ndn-perl/bin/perl
 PERL_PREFIX := $(shell $(PERL) -MConfig -E 'say $$Config{prefix}')
+SITELIB     := $(shell $(PERL) -MConfig -E 'say $$Config{sitelib}')
+SITEARCH    := $(shell $(PERL) -MConfig -E 'say $$Config{sitearch}')
+ARCHNAME    := $(shell $(PERL) -MConfig -E 'say $$Config{archname}')
+BINDIR      := $(shell $(PERL) -MConfig -E 'say $$Config{bindir}')
+
+NDN_LIB := $(SITELIB)
+NDN_BIN := $(BINDIR)
+NDN_MAN := $(PERL_PREFIX)/man
 
 # this should be changed to 'Task::NDN' or the like
 PRIMARY_DIST := Moose
@@ -15,15 +23,14 @@ HARNESS_SUBCLASS :=
 BUILD_CPANM_OPTS := -q --from file://`pwd`/dists/ --exclude-vendor
 
 # our build target
-OURBUILD := our-build
-ARCHNAME := $(shell $(PERL) -MConfig -E 'say $$Config{archname}')
+OURBUILD     := our-build
 INC_OURBUILD := -I $(OURBUILD)/lib/perl5 -I $(OURBUILD)/lib/perl5/$(ARCHNAME)
 
 tmpfile := $(shell tempfile)
 
 # targets to control our dist cache, etc
 
-.PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan
+.PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir
 
 # dh will run the default target first, so make this the default!
 all: build
@@ -33,6 +40,9 @@ archname:
 
 ndn-prefix:
 	@echo $(PERL_PREFIX)
+
+ndn-libdir:
+	@echo $(NDN_LIB)
 
 dev-clean: clean
 	rm -rf dists/
@@ -80,9 +90,16 @@ build:
 	# trim the little things...
 
 install:
-	mkdir -p $(DESTDIR)/$(PERL_PREFIX)
-	mv $(OURBUILD)/* $(DESTDIR)/$(PERL_PREFIX)/
-	# clean it all up
+	# perl libs...
+	mkdir -p $(DESTDIR)/$(NDN_LIB)
+	mv $(OURBUILD)/lib/perl5/* $(DESTDIR)/$(NDN_LIB)/
+	# scripties, binaries, whatnot...
+	mkdir -p $(DESTDIR)/$(NDN_BIN)
+	mv $(OURBUILD)/bin/* $(DESTDIR)/$(NDN_BIN)/
+	# man pages...
+	mkdir -p $(DESTDIR)/$(NDN_MAN)
+	mv $(OURBUILD)/man/* $(DESTDIR)/$(NDN_MAN)/*
+	# ...and clean it all up.
 	find $(DESTDIR) -empty -name '*.bs' -exec rm -vf {} \;
 	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
 	find $(DESTDIR) -name 'perllocal.pod' -exec rm -vf {} \;
