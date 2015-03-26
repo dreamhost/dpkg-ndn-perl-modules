@@ -20,7 +20,8 @@ CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
 HARNESS_OPTIONS :=
 # we may want to set this to TAP::Harness::Restricted
 HARNESS_SUBCLASS :=
-BUILD_CPANM_OPTS := -q --from file://`pwd`/dists/ --exclude-vendor
+BUILD_CPANM_OPTS := -q --from file://`pwd`/dists/ \
+	--exclude-vendor --man-pages
 
 # our build target
 OURBUILD     := our-build
