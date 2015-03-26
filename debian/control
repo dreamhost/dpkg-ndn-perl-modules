@@ -2,7 +2,7 @@ Source: ndn-perl-modules
 Section: perl
 Priority: optional
 Maintainer: Chris Weyl <chris.weyl@dreamhost.com>
-Build-Depends: debhelper (>= 8.0.0), ndn-perl (>= 5.20.1)
+Build-Depends: debhelper (>= 8.0.0), ndn-perl (>= 5.20.1), ndn-lintian-profile
 Standards-Version: 3.9.4
 Homepage: https://github.com/dreamhost/glowing-bear/tree/ndn-perl-modules/master
 Vcs-Git: https://github.com/dreamhost/glowing-bear.git
