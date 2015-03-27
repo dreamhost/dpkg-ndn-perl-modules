@@ -1,0 +1,10 @@
+before_install:
+    - sudo apt-add-repository -y ppa:rsrchboy/ndn-perl
+    - sudo apt-get update
+install:
+    - sudo apt-get install -y build-essential debhelper devscripts
+    - sudo apt-get install -y ndn-lintian-profile
+script:
+    - debuild -S -us -uc --lintian-opts --profile ndn
+    - debuild -us -uc --lintian-opts --profile ndn
+    - sudo dpkg -i ../*.deb
