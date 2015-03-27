@@ -3,7 +3,7 @@ before_install:
     - sudo apt-get update
 install:
     - sudo apt-get install -y build-essential debhelper devscripts
-    - sudo apt-get install -y ndn-lintian-profile
+    - sudo apt-get install -y ndn-lintian-profile ndn-perl
 script:
     - debuild -S -us -uc --lintian-opts --profile ndn
     - debuild -us -uc --lintian-opts --profile ndn
