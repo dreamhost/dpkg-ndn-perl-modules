@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -ex
+
+# install any additional ppa's needed
+sudo apt-add-repository -y ppa:rsrchboy/ndn-perl
