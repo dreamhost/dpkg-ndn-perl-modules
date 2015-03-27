@@ -1,3 +1,4 @@
+perl: 5.14
 before_install:
     - sudo apt-add-repository -y ppa:rsrchboy/ndn-perl
     - sudo apt-get update
