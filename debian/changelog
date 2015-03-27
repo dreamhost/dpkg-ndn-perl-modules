@@ -1,3 +1,9 @@
+ndn-perl-modules (5.20.x.2~12.04~ppa1) precise; urgency=medium
+
+  * Build for precise.
+
+ -- Chris Weyl <cweyl@alumni.drew.edu>  Fri, 27 Mar 2015 16:42:49 -0700
+
 ndn-perl-modules (5.20.x.2) UNRELEASED; urgency=medium
 
   * Fix our manpage build/installation.
