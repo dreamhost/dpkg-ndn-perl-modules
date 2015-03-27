@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -ex
+
+pkg=ndn-perl-modules
+#diversion_added_version=5.20.x.3
+
+if test "$1" = install ; then
+    dpkg-divert --add --rename /opt/ndn-perl/man/man1/config_data.1
+fi
+
