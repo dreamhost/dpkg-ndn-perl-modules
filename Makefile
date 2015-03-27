@@ -20,11 +20,11 @@ CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
 HARNESS_OPTIONS :=
 # we may want to set this to TAP::Harness::Restricted
 HARNESS_SUBCLASS :=
+OURBUILD         := our-build
 BUILD_CPANM_OPTS := -q --from file://`pwd`/dists/ \
-	--exclude-vendor --man-pages
+	-L $(OURBUILD) --man-pages
 
 # our build target
-OURBUILD     := our-build
 INC_OURBUILD := -I $(OURBUILD)/lib/perl5 -I $(OURBUILD)/lib/perl5/$(ARCHNAME)
 
 tmpfile := $(shell tempfile)
@@ -87,7 +87,7 @@ clean:
 	rm -rf our-build/ scratch/
 
 build:
-	$(PERL) ./cpanm $(BUILD_CPANM_OPTS) -L $(OURBUILD) $(PRIMARY_DIST)
+	$(PERL) ./cpanm $(BUILD_CPANM_OPTS) $(PRIMARY_DIST)
 	# trim the little things...
 
 install:
@@ -99,7 +99,7 @@ install:
 	mv $(OURBUILD)/bin/* $(DESTDIR)/$(NDN_BIN)/
 	# man pages...
 	mkdir -p $(DESTDIR)/$(NDN_MAN)
-	mv $(OURBUILD)/man/* $(DESTDIR)/$(NDN_MAN)/*
+	mv $(OURBUILD)/man/* $(DESTDIR)/$(NDN_MAN)/
 	# ...and clean it all up.
 	find $(DESTDIR) -empty -name '*.bs' -exec rm -vf {} \;
 	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
