@@ -8,9 +8,9 @@ SITEARCH    := $(shell $(PERL) -MConfig -E 'say $$Config{sitearch}')
 ARCHNAME    := $(shell $(PERL) -MConfig -E 'say $$Config{archname}')
 BINDIR      := $(shell $(PERL) -MConfig -E 'say $$Config{bindir}')
 
-NDN_LIB := $(SITELIB)
+NDN_LIB := $(PERL_PREFIX)/modules/perl5
 NDN_BIN := $(BINDIR)
-NDN_MAN := $(PERL_PREFIX)/man
+NDN_MAN := $(PERL_PREFIX)/modules/man
 
 # this should be changed to 'Task::NDN' or the like
 PRIMARY_DIST := Moose
