@@ -7,3 +7,7 @@ App::Cmd
 Path::Tiny
 Reindeer
 Smart::Comments
+DBIx::Class
+DBIx::Class::Schema::Loader
+DBD::SQLite
+Task::Plack
