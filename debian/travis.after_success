@@ -6,7 +6,8 @@ set -ex
 git fetch --unshallow ||:
 
 # only do this on our master branch
-[ "$(git symbolic-ref --short HEAD)" = "master" ] || exit
+[ "$TRAVIS_BRANCH"       = "master" ] || exit
+[ "$TRAVIS_PULL_REQUEST" = "false"  ] || exit
 
 # setup ssh...
 eval `ssh-agent`
