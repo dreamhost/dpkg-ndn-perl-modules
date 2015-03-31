@@ -14,7 +14,8 @@ NDN_MAN := $(PERL_PREFIX)/modules/man
 
 # this should be changed to 'Task::NDN' or the like
 PRIMARY_DIST := Moose
-DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
+#DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
+DPAN_BUILD_DISTS := $(shell cat modules.list)
 # if we want to be using a DPAN external to this repo, too
 CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
 HARNESS_OPTIONS :=

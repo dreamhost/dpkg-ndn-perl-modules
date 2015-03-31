@@ -1,0 +1,5 @@
+Module::Build
+Moose
+Readonly::XS
+MooseX::AttributeShortcuts
+V
