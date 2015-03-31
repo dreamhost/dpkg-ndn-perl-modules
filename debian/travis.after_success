@@ -2,12 +2,13 @@
 
 set -ex
 
-# fixup our repository...
-git fetch --unshallow ||:
-
 # only do this on our master branch
 [ "$TRAVIS_BRANCH"       = "master" ] || exit
 [ "$TRAVIS_PULL_REQUEST" = "false"  ] || exit
+
+# fixup our repository...
+git fetch --unshallow ||:
+git checkout $TRAVIS_BRANCH
 
 # setup ssh...
 eval `ssh-agent`
