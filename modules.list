@@ -3,3 +3,7 @@ Moose
 Readonly::XS
 MooseX::AttributeShortcuts
 V
+App::Cmd
+Path::Tiny
+Reindeer
+Smart::Comments
