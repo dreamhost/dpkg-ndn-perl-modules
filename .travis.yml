@@ -1,5 +1,7 @@
 language: perl
 env:
+    global:
+        - DEB_BUILD_OPTIONS="parallel=2"
     matrix:
         - PPA_REPO=ppa:rsrchboy/ndn-perl         DEPLOY=false
         - PPA_REPO=ppa:rsrchboy/ndn-perl-testing DEPLOY=testing
