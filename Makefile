@@ -13,7 +13,7 @@ NDN_BIN := $(BINDIR)
 NDN_MAN := $(PERL_PREFIX)/modules/man
 
 # this should be changed to 'Task::NDN' or the like
-PRIMARY_DIST := Moose
+PRIMARY_DIST := $(shell cat modules.list) 
 #DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
 DPAN_LOCATION    := ./dists/
 DPAN_BUILD_DISTS := $(shell cat modules.list)
