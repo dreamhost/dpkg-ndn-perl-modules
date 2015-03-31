@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -ex
+
+# only do this on our master branch
+[ "$(git symbolic-ref --short HEAD)" = "master" ] || exit
+
+# fixup our repository...
+sudo apt-get install -y git-bzr-ng
+git fetch --unshallow ||:
+
+# setup ssh...
+eval `ssh-agent`
+ssh-add debian/travis/deploy_id
+mkdir -p ~/.ssh
+cp debian/travis/known_hosts ~/.ssh/
+
+# and push out to our bzr branch...
+bzr launchpad-login rsrchboy
+git bzr init
+git bzr push --overwrite lp:~rsrchboy/+junk/ndn-perl-modules
