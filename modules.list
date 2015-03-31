@@ -12,3 +12,8 @@ DBIx::Class::Schema::Loader
 DBD::SQLite
 DBD::mysql
 Task::Plack
+Starman
+OrePAN2
+
+Mozilla::CA
+LWP::Protocol::https
