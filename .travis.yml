@@ -13,7 +13,7 @@ install:
     - sudo mk-build-deps --install debian/control
 script:
     - debuild -S -us -uc --lintian-opts --profile ndn
-    - debuild -us -uc --lintian-opts --profile ndn
+    - debuild -us -uc --lintian-opts --profile ndn || { cat ~/.cpanm/build.log ; false ; }
     - sudo dpkg -i ../*.deb
 after_success:
     - openssl aes-256-cbc -K $encrypted_a72206316df8_key -iv $encrypted_a72206316df8_iv
