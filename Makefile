@@ -15,6 +15,7 @@ NDN_MAN := $(PERL_PREFIX)/modules/man
 # this should be changed to 'Task::NDN' or the like
 PRIMARY_DIST := Moose
 #DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
+DPAN_LOCATION    := ./dists/
 DPAN_BUILD_DISTS := $(shell cat modules.list)
 # if we want to be using a DPAN external to this repo, too
 CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
@@ -32,7 +33,8 @@ tmpfile := $(shell tempfile)
 
 # targets to control our dist cache, etc
 
-.PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir
+.PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
+	refresh-dists refresh-index
 
 # dh will run the default target first, so make this the default!
 all: build
@@ -66,8 +68,10 @@ commit-dists:
 		| tee -a $(tmpfile)
 	git commit --file=$(tmpfile)
 
+dists: refresh-dists
+
 # note we deliberately do *not* set a CPAN mirror here.  This is intentional.
-dists:
+refresh-dists:
 	# download dists
 	$(PERL) ./cpanm -q --exclude-vendor \
 		--self-contained -L scratch/ --save-dists=dists \
@@ -76,7 +80,17 @@ dists:
 dpan: index
 
 index: dists
-	orepan2-indexer ./dists/
+	$(MAKE) refresh-index
+
+refresh-index:
+	orepan2-indexer $(DPAN_LOCATION)
+	orepan2-gc $(DPAN_LOCATION)
+
+show-outdated:
+	orepan2-audit \
+		--darkpan $(DPAN_LOCATION)/modules/02packages.details.txt.gz \
+		--cpan http://cpan.metacpan.org/modules/02packages.details.txt \
+		--show outdated-modules
 
 rebuild-dpan: dev-clean
 	$(MAKE) dpan
