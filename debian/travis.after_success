@@ -1,12 +1,43 @@
 #!/bin/sh
 
+# This is a scriptlet, intended to be invoked in .travis.yml's "after_success"
+# section.
+#
+# We run:
+#
+#   on branch master
+#   not on pull requests
+#   $DEPLOY != false
+#
+# Our purpose is to "deploy" a passing build to launchpad, such that it can be
+# automagically built by a source recipe.  This requires a little magic,
+# however, as we need a ssh keypair with access to push to the bzr branch,
+# git-bzr-ng installed, etc, etc.
+#
+# $DEPLOY is set as part of the matrix'ed build configuration in .travis.yml.
+# Currently we only use it to deploy to our perhaps-badly-named "testing" PPA,
+# so we only test that it is set to "testing", though we should expect to see
+# true, false, and testing as values.
+#
+# Note: the ssh keypair here is *only* decrypted by travis -- indeed, can only
+# be decrypted by them -- and then never on jobs initiated by pull requests.
+# See: http://docs.travis-ci.com/user/encrypting-files/
+
 set -ex
 
-# only do this on our master branch
+# only do this on our master branch, and if we're not a pull request
 [ "$TRAVIS_BRANCH"       = "master" ] || exit
 [ "$TRAVIS_PULL_REQUEST" = "false"  ] || exit
 
+# only run if DEPLOY == testing
+[ "$DEPLOY" = "testing" ] || exit
+
+# our remote bzr branch -- no point in continuing if we don't have this
+[ -f debian/lp.bzr-branch ] || exit
+LP_BZR_BRANCH=`cat debian/lp.bzr-branch`
+
 # fixup our repository...
+sudo apt-get install -y git-bzr-ng
 git fetch --unshallow ||:
 git checkout $TRAVIS_BRANCH
 
@@ -17,7 +48,6 @@ mkdir -p ~/.ssh
 cp debian/travis/known_hosts ~/.ssh/
 
 # and push out to our bzr branch...
-sudo apt-get install -y git-bzr-ng
 bzr launchpad-login rsrchboy
 git bzr init
-git bzr push --overwrite lp:~rsrchboy/+junk/ndn-perl-modules
+git bzr push --overwrite $LP_BZR_BRANCH
