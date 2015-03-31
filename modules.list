@@ -10,4 +10,5 @@ Smart::Comments
 DBIx::Class
 DBIx::Class::Schema::Loader
 DBD::SQLite
+DBD::mysql
 Task::Plack
