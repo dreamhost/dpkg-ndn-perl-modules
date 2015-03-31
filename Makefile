@@ -70,6 +70,10 @@ commit-dists:
 
 dists: refresh-dists
 
+refresh-dpan: refresh-dists
+	$(MAKE) refresh-index
+	$(MAKE) commit-dists
+
 # note we deliberately do *not* set a CPAN mirror here.  This is intentional.
 refresh-dists:
 	# download dists
