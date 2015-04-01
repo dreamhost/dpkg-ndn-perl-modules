@@ -13,31 +13,45 @@ NDN_BIN := $(BINDIR)
 NDN_MAN := $(PERL_PREFIX)/modules/man
 
 # this should be changed to 'Task::NDN' or the like
-PRIMARY_DIST := $(shell cat modules.list) 
+PRIMARY_DIST := $(shell cat modules.list)
 #DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
 DPAN_LOCATION    := ./dists/
-DPAN_BUILD_DISTS := $(shell cat modules.list)
+DPAN_URI         := file://$(shell pwd)/dists/
+DPAN_BUILD_DISTS := $(shell sed -e '/^\#/d' modules.list)
 # if we want to be using a DPAN external to this repo, too
 CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
 HARNESS_OPTIONS :=
 # we may want to set this to TAP::Harness::Restricted
 HARNESS_SUBCLASS :=
 OURBUILD         := our-build
-BUILD_CPANM_OPTS := -q --from file://`pwd`/dists/ \
-	-L $(OURBUILD) --man-pages
+DPAN_CPANM_OPTS  := -q --self-contained -L scratch/ --save-dists=dists
+BASE_CPANM_OPTS  := -q --from $(DPAN_URI) -L $(OURBUILD) --man-pages
+BUILD_CPANM_OPTS := $(BASE_CPANM_OPTS) --notest
+TEST_CPANM_OPTS  := $(BASE_CPANM_OPTS) --test-only
 
 # our build target
 INC_OURBUILD := -I $(OURBUILD)/lib/perl5 -I $(OURBUILD)/lib/perl5/$(ARCHNAME)
+
+META_DIR = $(OURBUILD)/lib/perl5/$(ARCHNAME)/.meta
+installed_json = $(wildcard $(META_DIR)/*/install.json)
+test_installed = $(addsuffix .test,$(installed_json))
+show_installed = $(addsuffix .show,$(installed_json))
 
 tmpfile := $(shell tempfile)
 
 # targets to control our dist cache, etc
 
 .PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
-	refresh-dists refresh-index help
+	refresh-dists refresh-index help \
+	test-installed-packages $(test_installed) \
+	show-installed-packages $(show_installed) \
+	$(installed_json)
 
 # dh will run the default target first, so make this the default!
 all: build
+
+bla: $(installed_json)
+	for i in "$^" ; do json_xs -e '$$_ = $$_->{pathname}' -t string < $$i ; done
 
 archname:
 	@echo $(ARCHNAME)
@@ -133,8 +147,20 @@ install:
 	find $(DESTDIR) -empty -type d -delete
 	chmod -Rf a+rX,u+w,g-w,o-w $(DESTDIR)
 
-test:
-	# no-op, already done in build
+$(installed_json):
+
+$(show_installed): $(installed_json)
+	@echo `json_xs -e '$$_ = $$_->{pathname}' -t string < $(basename $@)`
+
+show-installed: $(show_installed)
+
+$(test_installed): $(installed_json)
+	HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(TEST_CPANM_OPTS) \
+		`json_xs -e '$$_ = $$_->{pathname}' -t string < $(basename $@)`
+
+test-installed-packages: $(test_installed)
+
+test: test-installed-packages
 
 help:
 	# Hi!  This is the make program, telling you about this delicious Makefile
