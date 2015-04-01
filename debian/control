@@ -12,9 +12,9 @@ Build-Depends:
  libgd-dev,
  libxslt1-dev
 Standards-Version: 3.9.4
-Homepage: https://github.com/dreamhost/glowing-bear/tree/ndn-perl-modules/master
-Vcs-Git: https://github.com/dreamhost/glowing-bear.git
-Vcs-Browser: https://github.com/dreamhost/glowing-bear/tree/ndn-perl-modules/master
+Homepage: https://github.com/dreamhost/dpkg-ndn-perl
+Vcs-Git: https://github.com/dreamhost/dpkg-ndn-perl.git
+Vcs-Browser: https://github.com/dreamhost/dpkg-ndn-perl
 
 Package: ndn-perl-modules
 Architecture: any
