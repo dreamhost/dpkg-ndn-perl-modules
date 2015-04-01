@@ -1,6 +1,6 @@
 {
-   "Term::ReadLine" : {
-      "filename" : "authors/id/D/DU/DUMMY/Term-ReadLine-1.14.tar.gz",
-      "md5" : "60a3c2aeb765c7b7f6ee185c5d812b3d"
+   "Text::Wrap" : {
+      "filename" : "authors/id/D/DU/DUMMY/Text-Tabs+Wrap-2013.0523.tar.gz",
+      "md5" : "3e421ed3810803512af8d13bad548993"
    }
 }
