@@ -1,3 +1,4 @@
+TAP::Harness::Restricted
 Module::Build
 Moose
 Readonly::XS
