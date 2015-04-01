@@ -6,7 +6,11 @@ Build-Depends:
  debhelper (>= 8.0.0),
  ndn-perl (>= 5.20.2),
  ndn-lintian-profile,
- libmysqlclient-dev
+ libmysqlclient-dev,
+ libxml2-dev,
+ libssl-dev,
+ libgd-dev,
+ libxslt1-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/dreamhost/glowing-bear/tree/ndn-perl-modules/master
 Vcs-Git: https://github.com/dreamhost/glowing-bear.git
