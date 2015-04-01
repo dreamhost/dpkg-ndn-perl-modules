@@ -49,7 +49,7 @@ ndn-libdir:
 	@echo $(NDN_LIB)
 
 dev-clean: clean
-	rm -rf dists/
+	rm -rf dists/ scratch/
 
 commit-dists:
 	# commiting changes to dists/
@@ -103,11 +103,18 @@ rebuild-dpan: dev-clean
 # targets that will get invoked by dh: clean, build, test
 
 clean:
-	rm -rf our-build/ scratch/
+	rm -rf our-build/ build.sh
 
-build:
-	$(PERL) ./cpanm $(BUILD_CPANM_OPTS) $(PRIMARY_DIST)
-	# trim the little things...
+build: build.sh
+	time ./build.sh
+
+build.sh: build.sh.tmpl modules.list
+	cp build.sh.tmpl build.sh
+	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> build.sh
+	cat modules.list \
+		| sed -e '/^#/d' \
+		| xargs -L1 echo "HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(BUILD_CPANM_OPTS)" \
+		>> build.sh
 
 install:
 	# perl libs...
