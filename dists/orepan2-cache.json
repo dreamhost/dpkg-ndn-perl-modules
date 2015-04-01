@@ -1,6 +1,6 @@
 {
-   "https://github.com/RsrchBoy/Plack-Middleware-Auth-Digest.git@patched/all_requires" : {
-      "filename" : "authors/id/D/DU/DUMMY/Plack-Middleware-Auth-Digest-0.04_01.tar.gz",
-      "md5" : "36c94d5f9d13572e3871b87e02d3caa4"
+   "IO" : {
+      "filename" : "authors/id/D/DU/DUMMY/IO-1.25.tar.gz",
+      "md5" : "b88aaf2bb7437725b11e9eb48dfb6c93"
    }
 }
