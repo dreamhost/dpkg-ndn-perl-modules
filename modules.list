@@ -13,18 +13,11 @@ DBD::SQLite
 DBD::mysql
 Starman
 OrePAN2
-
 Mozilla::CA
 LWP::Protocol::https
-
-
-# This needs to be first
 ExtUtils::Depends
-
 JSON::Any
-
 PDF::Create
-
 IO::Prompt
 
 CGI
