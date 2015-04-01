@@ -1,6 +1,5 @@
 
-# change this to "our" perl; but for now...
-#PERL = $(/opt/ndn-perl/bin/perl)
+SYS_PERL    := $(shell which perl)
 PERL        := PERL5LIB="" PERL_CPANM_OPT="" /opt/ndn-perl/bin/perl
 PERL_PREFIX := $(shell $(PERL) -MConfig -E 'say $$Config{prefix}')
 SITELIB     := $(shell $(PERL) -MConfig -E 'say $$Config{sitelib}')
@@ -25,8 +24,8 @@ HARNESS_OPTIONS :=
 HARNESS_SUBCLASS :=
 OURBUILD         := our-build
 DPAN_CPANM_OPTS  := -q --self-contained -L scratch/ --save-dists=dists
-BASE_CPANM_OPTS  := -q --from $(DPAN_URI) -L $(OURBUILD) --man-pages
-BUILD_CPANM_OPTS := $(BASE_CPANM_OPTS) --notest
+BASE_CPANM_OPTS  := -q --from $(DPAN_URI) -L $(OURBUILD)
+BUILD_CPANM_OPTS := $(BASE_CPANM_OPTS) --man-pages --notest
 TEST_CPANM_OPTS  := $(BASE_CPANM_OPTS) --test-only
 
 # our build target
@@ -88,11 +87,16 @@ refresh-dpan: refresh-dists
 	$(MAKE) refresh-index
 	$(MAKE) commit-dists
 
+refresh-dists: CPAN_BUILD_OPTS := $(DPAN_BUILD_OPTS)
+#refresh-dists: PERL            := $(SYS_PERL)
+refrest-dists: build
+
 # note we deliberately do *not* set a CPAN mirror here.  This is intentional.
-refresh-dists:
+refresh-dists-xxx:
 	# download dists
 	$(PERL) ./cpanm -q --exclude-vendor \
 		--self-contained -L scratch/ --save-dists=dists \
+		--notest \
 		$(DPAN_BUILD_DISTS)
 
 dpan: index
@@ -117,10 +121,21 @@ rebuild-dpan: dev-clean
 # targets that will get invoked by dh: clean, build, test
 
 clean:
-	rm -rf our-build/ build.sh
+	rm -rf our-build/ build.sh built.flag
 
-build: build.sh
+build: built.flag
+
+built.flag: build.sh
 	time ./build.sh
+	touch built.flag
+
+refresh.sh: build.sh.tmpl modules.list
+	cp build.sh.tmpl $@ 
+	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> $@
+	cat modules.list \
+		| sed -e '/^#/d' \
+		| xargs -L1 echo "HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(BUILD_CPANM_OPTS)" \
+		>> $@
 
 build.sh: build.sh.tmpl modules.list
 	cp build.sh.tmpl build.sh
@@ -133,13 +148,13 @@ build.sh: build.sh.tmpl modules.list
 install:
 	# perl libs...
 	mkdir -p $(DESTDIR)/$(NDN_LIB)
-	mv $(OURBUILD)/lib/perl5/* $(DESTDIR)/$(NDN_LIB)/
+	install -v $(OURBUILD)/lib/perl5/* $(DESTDIR)/$(NDN_LIB)/
 	# scripties, binaries, whatnot...
 	mkdir -p $(DESTDIR)/$(NDN_BIN)
-	mv $(OURBUILD)/bin/* $(DESTDIR)/$(NDN_BIN)/
+	install -v $(OURBUILD)/bin/* $(DESTDIR)/$(NDN_BIN)/
 	# man pages...
 	mkdir -p $(DESTDIR)/$(NDN_MAN)
-	mv $(OURBUILD)/man/* $(DESTDIR)/$(NDN_MAN)/
+	install -v $(OURBUILD)/man/* $(DESTDIR)/$(NDN_MAN)/
 	# ...and clean it all up.
 	find $(DESTDIR) -empty -name '*.bs' -exec rm -vf {} \;
 	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
@@ -155,7 +170,7 @@ $(show_installed): $(installed_json)
 show-installed: $(show_installed)
 
 $(test_installed): $(installed_json)
-	HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(TEST_CPANM_OPTS) \
+	HARNESS_OPTIONS= HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(TEST_CPANM_OPTS) \
 		`json_xs -e '$$_ = $$_->{pathname}' -t string < $(basename $@)`
 
 test-installed-packages: $(test_installed)

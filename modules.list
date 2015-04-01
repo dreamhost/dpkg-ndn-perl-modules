@@ -1,18 +1,25 @@
+# special-case'd out at the moment
 TAP::Harness::Restricted
+
+Module::Build::Tiny
 Module::Build
-Moose
+Test::More
 Readonly::XS
 MooseX::AttributeShortcuts
+Reindeer
+
+# validation utilities
+App::cpanm::meta::checker
 V
+
+IPC::ShareLite
 App::Cmd
 Path::Tiny
-Reindeer
 Smart::Comments
 DBIx::Class
 DBIx::Class::Schema::Loader
 DBD::SQLite
 DBD::mysql
-Starman
 OrePAN2
 Mozilla::CA
 LWP::Protocol::https
@@ -27,9 +34,11 @@ LWP::UserAgent
 
 Math::Pari
 AnyEvent::Yubico
-Net::Whois::IANA
+# certain tests failing randomly marked as TODO
+#Net::Whois::IANA
+https://github.com/dreamhost/Net-Whois-IANA.git@master
+
 CGI::Compile
-perl5i
 Expect
 Date::Calc
 
@@ -45,8 +54,6 @@ Test::Most
 Crypt::Random
 Net::SSLeay
 IO::Socket::IP
-Test::Fatal
-Child
 Fennec::Declare
 MIME::Base32
 Plack
@@ -58,7 +65,6 @@ Parse::RecDescent
 Net::Server
 IO::Socket::SSL
 Starman
-Module::Build
 
 Amazon::S3
 Archive::Tar
@@ -79,7 +85,6 @@ Crypt::OpenSSL::PBKDF2
 Crypt::OpenSSL::RSA
 Crypt::PasswdMD5
 Crypt::Rijndael
-Cwd
 DBD::mysql
 DBI
 Data::Dumper
@@ -95,23 +100,13 @@ Email::Address
 Email::MIME
 Email::Simple
 Error
-Exporter
 Exporter::Declare
 Exporter::Declare::Magic
 Exporter::Declare::Magic::Parser
 FCGI
-Fennec
-File::Path
 File::Slurp
-File::Spec
-File::Temp
 File::Type
 GD::Graph
-GD::Graph::Data
-GD::Graph::bars
-GD::Graph::lines
-GD::Graph::pie
-GD::Graph::points
 Geo::IP::PurePerl
 Getopt::Long
 GnuPG::Handles
@@ -129,12 +124,8 @@ HTTP::Request
 Hash::Merge
 Hash::MultiValue
 IO::Compress::Gzip
-IO::File
-IO::Handle
+IO
 IO::Scalar
-IO::Select
-IO::Socket
-IO::Socket::INET
 IO::Socket::SSL
 IO::String
 JSON
@@ -192,7 +183,6 @@ Perl::Critic
 Perl::Critic::Lax
 Perl::Critic::More
 Perl::Critic::Pulp
-Pod::Man
 Pod::Usage
 Scalar::Util
 Spreadsheet::WriteExcel
@@ -210,12 +200,10 @@ Test::Exception
 Test::MockModule
 Test::MockObject
 Test::MockTime
-Test::More
 Test::Warn
 Test::Warnings
 Text::CSV
 Text::Glob
-Text::Wrap
 Text::vCard::Addressbook
 Text::xSV
 Time::HiRes
@@ -225,10 +213,6 @@ Try::Tiny
 Term::ReadLine::Simple
 
 URI
-URI::Escape
-URI::QueryParam
-URI::Split
-URI::URL
 User
 Variable::Magic
 WWW::Mechanize
@@ -272,5 +256,7 @@ REST::Google::Apps::Provisioning
 Crypt::Primes
 IO::Prompt
 Want
-Module::Build::Tiny
 Net::Fastly
+
+# wha..?!
+#perl5i
