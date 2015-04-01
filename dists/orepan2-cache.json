@@ -1,6 +1,6 @@
 {
-   "perl5i" : {
-      "filename" : "authors/id/D/DU/DUMMY/perl5i-v2.13.1.tar.gz",
-      "md5" : "c69d503122e7bd242ddbe2fc2c464018"
+   "Time::HiRes" : {
+      "filename" : "authors/id/D/DU/DUMMY/Time-HiRes-1.9726.tar.gz",
+      "md5" : "077e5d7eda1349f98c564026603f8a0a"
    }
 }
