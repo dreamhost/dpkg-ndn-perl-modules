@@ -1,6 +1,6 @@
 {
-   "IO" : {
-      "filename" : "authors/id/D/DU/DUMMY/IO-1.25.tar.gz",
-      "md5" : "b88aaf2bb7437725b11e9eb48dfb6c93"
+   "Term::ReadLine" : {
+      "filename" : "authors/id/D/DU/DUMMY/Term-ReadLine-1.14.tar.gz",
+      "md5" : "60a3c2aeb765c7b7f6ee185c5d812b3d"
    }
 }
