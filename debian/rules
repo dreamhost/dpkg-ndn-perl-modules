@@ -4,5 +4,14 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+_our_perl_prefix := $(shell $(PERL) -MConfig -E 'say $$Config{prefix}')
+_our_archname    := $(shell $(PERL) -MConfig -E 'say $$Config{archname}')
+_our_scriptdir   := $(shell $(PERL) -MConfig -E 'say $$Config{scriptdir}')
+_our_lib := $(PERL_PREFIX)/modules/perl5
+
 %:
 	dh $@ --parallel
+
+# run dh_perl against our (non-standard) locations
+override_dh_perl:
+	dh_perl $(_our_lib) $(_our_lib)/$(_our_archname) $(_our_scriptdir)
