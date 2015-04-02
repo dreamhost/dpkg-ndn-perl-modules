@@ -139,6 +139,14 @@ refresh.sh: build.sh.tmpl modules.list
 		| xargs -L1 echo "HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(BUILD_CPANM_OPTS)" \
 		>> $@
 
+module_deps := $(shell sed -e "/^\#/d" modules.list)
+module_targets := $(subst ::,-,$(module_deps))
+.PHONY: $(module_targets) build-ng
+build-ng: $(module_targets)
+
+$(module_targets):
+	HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(BUILD_CPANM_OPTS) $(subst -,::,$@)
+
 build.sh: build.sh.tmpl modules.list
 	cp build.sh.tmpl build.sh
 	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> build.sh
