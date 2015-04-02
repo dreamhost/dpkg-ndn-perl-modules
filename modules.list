@@ -35,8 +35,8 @@ LWP::UserAgent
 Math::Pari
 AnyEvent::Yubico
 # certain tests failing randomly marked as TODO
-#Net::Whois::IANA
-https://github.com/dreamhost/Net-Whois-IANA.git@master
+Net::Whois::IANA
+#https://github.com/dreamhost/Net-Whois-IANA.git@master
 
 CGI::Compile
 Expect
