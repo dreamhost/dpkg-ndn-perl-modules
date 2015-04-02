@@ -7,7 +7,7 @@ Build-Depends:
  ndn-perl (>= 5.20.2),
  ndn-lintian-profile,
  time,
- libjson-xs-perl,
+ libjson-xs-perl (>= 2.340),
  libmysqlclient-dev,
  libxml2-dev,
  libssl-dev,
