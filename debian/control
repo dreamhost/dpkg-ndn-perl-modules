@@ -12,6 +12,7 @@ Build-Depends:
  libxml2-dev,
  libssl-dev,
  libgd-dev,
+ libgmp-dev,
  libxslt1-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/dreamhost/dpkg-ndn-perl
