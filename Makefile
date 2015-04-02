@@ -38,6 +38,8 @@ show_installed = $(addsuffix .show,$(installed_json))
 
 tmpfile := $(shell tempfile)
 
+INSTALL := install -v -D
+
 # targets to control our dist cache, etc
 
 .PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
@@ -148,13 +150,13 @@ build.sh: build.sh.tmpl modules.list
 install:
 	# perl libs...
 	mkdir -p $(DESTDIR)/$(NDN_LIB)
-	install -v $(OURBUILD)/lib/perl5/* $(DESTDIR)/$(NDN_LIB)/
+	$(INSTALL) $(OURBUILD)/lib/perl5/* $(DESTDIR)/$(NDN_LIB)/
 	# scripties, binaries, whatnot...
 	mkdir -p $(DESTDIR)/$(NDN_BIN)
-	install -v $(OURBUILD)/bin/* $(DESTDIR)/$(NDN_BIN)/
+	$(INSTALL) $(OURBUILD)/bin/* $(DESTDIR)/$(NDN_BIN)/
 	# man pages...
 	mkdir -p $(DESTDIR)/$(NDN_MAN)
-	install -v $(OURBUILD)/man/* $(DESTDIR)/$(NDN_MAN)/
+	$(INSTALL) $(OURBUILD)/man/* $(DESTDIR)/$(NDN_MAN)/
 	# ...and clean it all up.
 	find $(DESTDIR) -empty -name '*.bs' -exec rm -vf {} \;
 	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
