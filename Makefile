@@ -92,6 +92,9 @@ inject-override-dists:
 	for i in $(override_dists) ; do orepan2-inject --no-generate-index --allow-dev $$i dists ; done
 	orepan2-indexer --allow-dev $(DPAN_LOCATION)
 
+gc:
+	orepan2-gc dists
+
 refresh-dpan: refresh-dists
 	$(MAKE) refresh-index
 	$(MAKE) commit-dists
@@ -220,6 +223,7 @@ help:
 	# test, and install.
 	#
 	# admin/dev targets:
+	#   gc:                    remove tarballs not indexed
 	#   rebuild-dpan:          remove our dpan (./dists/) and completely
 	#       rebuild.  This will take some time.
 	#   refresh-dists:         refresh the dpan with modules.list
