@@ -1,47 +1,44 @@
 # special-case'd out at the moment
-TAP::Harness::Restricted
 
 Module::Build::Tiny
 Module::Build
 Test::More
-Readonly::XS
-MooseX::AttributeShortcuts
-Reindeer
 
 # validation utilities
 App::cpanm::meta::checker
 V
 
+common::sense
+DBI
 IPC::ShareLite
 App::Cmd
 Path::Tiny
 Smart::Comments
-DBIx::Class
-DBIx::Class::Schema::Loader
-DBD::SQLite
-DBD::mysql
 OrePAN2
 Mozilla::CA
-LWP::Protocol::https
+MooseX::AttributeShortcuts
 ExtUtils::Depends
 JSON::Any
 PDF::Create
 IO::Prompt
 
+Readonly::XS
 CGI
 Net::FTP
 LWP::UserAgent
 
-Math::Pari
+DBD::SQLite
 AnyEvent::Yubico
 # certain tests failing randomly marked as TODO
 Net::Whois::IANA
 #https://github.com/dreamhost/Net-Whois-IANA.git@master
 
+Moose
 CGI::Compile
 Expect
 Date::Calc
 
+DBIx::Class
 Convert::PEM
 
 GD
@@ -72,6 +69,7 @@ Archive::Zip
 Authen::OATH
 CGI::Ajax
 CGI::Carp
+DBIx::Class::Schema::Loader
 CGI::Cookie
 CGI::Fast
 Captcha::reCAPTCHA
@@ -86,12 +84,12 @@ Crypt::OpenSSL::RSA
 Crypt::PasswdMD5
 Crypt::Rijndael
 DBD::mysql
-DBI
 Data::Dumper
 Data::UUID
 Date::Manip
 Devel::Declare::Parser::Fennec
 Devel::StackTrace
+TAP::Harness::Restricted
 Digest::HMAC_SHA1
 Digest::MD5
 Digest::SHA
@@ -143,6 +141,7 @@ Mail::Bulkmail
 Mail::Bulkmail::Dynamic
 Mail::DKIM::DkSignature
 Mail::DKIM::PrivateKey
+LWP::Protocol::https
 Mail::DKIM::Signer
 Mail::DKIM::TextWrap
 Mail::GnuPG
@@ -151,16 +150,17 @@ Mail::Message
 Mail::POP3Client
 Mail::Sendmail
 Module::Runtime
-Moose
-MooseX::LeakCheck
 MooseX::StrictConstructor
+Perl::Critic
 Net::Amazon::EC2
+Math::Pari
 Net::Amazon::S3
 Net::CIDR
 Net::DNS
 Net::Daemon
 Net::Domain
 Net::EPP::Client
+MooseX::LeakCheck
 Net::EPP::Frame
 Net::EPP::Frame::Hello
 Net::FTP
@@ -179,11 +179,11 @@ Number::Format
 PPI
 PPI::Dumper
 PayflowPro
-Perl::Critic
 Perl::Critic::Lax
 Perl::Critic::More
 Perl::Critic::Pulp
 Pod::Usage
+XML::RSS
 Scalar::Util
 Spreadsheet::WriteExcel
 Statistics::Descriptive
@@ -218,13 +218,11 @@ Variable::Magic
 WWW::Mechanize
 WWW::Twilio::API
 XML::RPC
-XML::RSS
 XML::RSS::Aggregate
 XML::Simple
 YAML
 Text::Xslate
 Text::Handlebars
-MooseX::AttributeShortcuts
 Carp::Always
 Cache::FileCache
 Term::TablePrint
@@ -232,7 +230,6 @@ Term::Choose
 Term::Choose::Util
 Spreadsheet::Read
 App::DBBrowser
-Smart::Comments
 experimental
 IO::Tee
 Test::MockTime::DateCalc
@@ -257,6 +254,7 @@ Crypt::Primes
 IO::Prompt
 Want
 Net::Fastly
+Reindeer
 
 # wha..?!
 #perl5i
