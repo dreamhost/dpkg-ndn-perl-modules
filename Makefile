@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
 
 SYS_PERL    := $(shell which perl)
 PERL        := PERL5LIB="" PERL_CPANM_OPT="" /opt/ndn-perl/bin/perl
