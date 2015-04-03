@@ -36,6 +36,8 @@ installed_json = $(wildcard $(META_DIR)/*/install.json)
 test_installed = $(addsuffix .test,$(installed_json))
 show_installed = $(addsuffix .show,$(installed_json))
 
+override_dists := $(shell sed -e '/^\#/d' modules.list.overrides)
+
 tmpfile := $(shell tempfile)
 
 INSTALL := install -v -D
@@ -43,7 +45,7 @@ INSTALL := install -v -D
 # targets to control our dist cache, etc
 
 .PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
-	refresh-dists refresh-index help \
+	refresh-dists refresh-index help inject-override-dists \
 	test-installed-packages $(test_installed) \
 	show-installed-packages $(show_installed) \
 	$(installed_json)
@@ -85,6 +87,11 @@ commit-dists:
 
 dists: refresh-dists
 
+# see: https://github.com/tokuhirom/OrePAN2/issues/22
+inject-override-dists:
+	for i in $(override_dists) ; do orepan2-inject --no-generate-index --allow-dev $$i dists ; done
+	orepan2-indexer --allow-dev $(DPAN_LOCATION)
+
 refresh-dpan: refresh-dists
 	$(MAKE) refresh-index
 	$(MAKE) commit-dists
@@ -107,7 +114,7 @@ index: dists
 	$(MAKE) refresh-index
 
 refresh-index:
-	orepan2-indexer $(DPAN_LOCATION)
+	orepan2-indexer --allow-dev $(DPAN_LOCATION)
 	orepan2-gc $(DPAN_LOCATION)
 
 show-outdated:
@@ -213,12 +220,15 @@ help:
 	# test, and install.
 	#
 	# admin/dev targets:
-	#   rebuild-dpan:  remove our dpan (./dists/) and completely rebuild
-	#   refresh-dists: refresh the dpan with modules.list changes w/o
-	#                  obliterating the dpan first
-	#   dev-clean:     removes "admin artifacts"; depends on "clean"
-	#   show-outdated: show the dists in our DPAN that have newer releases on
-	#                  the public CPAN
+	#   rebuild-dpan:          remove our dpan (./dists/) and completely
+	#       rebuild.  This will take some time.
+	#   refresh-dists:         refresh the dpan with modules.list
+	#       changes w/o obliterating the dpan first
+	#   inject-override-dists: inject the override dists, typically from a git
+	#       repository somewhere, as listed in modules.list.overrides
+	#   dev-clean:             removes "admin artifacts"; depends on "clean"
+	#   show-outdated:         show the dists in our DPAN that have newer
+	#       releases on the public CPAN
 	#
 	# normal targets:
 	#   help:    display this help
