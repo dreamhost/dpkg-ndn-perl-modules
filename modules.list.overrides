@@ -1,3 +1,8 @@
 # certain tests failing randomly marked as TODO
 #Net::Whois::IANA
 git://github.com/dreamhost/Net-Whois-IANA.git@master
+
+# timeout is set too short for timeout tests to pass *le sigh*
+# https://github.com/Yubico/yubico-perl-client/pull/2
+#AnyEvent::Yubico
+https://github.com/dreamhost/AnyEvent-Yubico.git@master
