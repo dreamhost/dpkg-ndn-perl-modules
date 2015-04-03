@@ -8,6 +8,8 @@ Build-Depends:
  ndn-lintian-profile,
  time,
  unzip,
+ libc6-dev,
+ linux-libc-dev,
  libjson-xs-perl (>= 2.340),
  libmysqlclient-dev,
  libxml2-dev,
