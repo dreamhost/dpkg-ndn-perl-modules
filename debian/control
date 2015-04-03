@@ -8,6 +8,8 @@ Build-Depends:
  ndn-lintian-profile,
  time,
  unzip,
+ libpari-dev,
+ pari-gp,
  libc6-dev,
  linux-libc-dev,
  libjson-xs-perl (>= 2.340),
