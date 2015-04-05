@@ -47,7 +47,9 @@ override_dists := $(shell sed -e '/^\#/d' modules.list.overrides)
 
 tmpfile := $(shell tempfile)
 
-INSTALL := install -v -D
+# this handles directory recursion, whereas install does not *le sigh*.  add a
+# 'v' to have it tell you what it's doing.
+INSTALL = cp -pRu
 
 # targets to control our dist cache, etc
 
