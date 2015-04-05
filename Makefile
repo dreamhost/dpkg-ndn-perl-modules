@@ -19,11 +19,6 @@ PRIMARY_DIST := $(shell cat modules.list)
 DPAN_LOCATION    := ./dists/
 DPAN_URI         := file://$(shell pwd)/dists/
 DPAN_BUILD_DISTS := $(shell sed -e '/^\#/d' modules.list)
-# if we want to be using a DPAN external to this repo, too
-CPAN_MIRROR  := 'https://stratopan.com/rsrchboy/Test/master'
-HARNESS_OPTIONS :=
-# we may want to set this to TAP::Harness::Restricted
-HARNESS_SUBCLASS :=
 OURBUILD         := our-build
 DPAN_CPANM_OPTS  := -q --self-contained -L scratch/ --save-dists=dists
 BASE_CPANM_OPTS  := -q --from $(DPAN_URI) -L $(OURBUILD)
@@ -33,10 +28,20 @@ TEST_CPANM_OPTS  := $(BASE_CPANM_OPTS) --test-only
 # our build target
 INC_OURBUILD := -I $(OURBUILD)/lib/perl5 -I $(OURBUILD)/lib/perl5/$(ARCHNAME)
 
+# testing options
+HARNESS_OPTIONS  =
+HARNESS_SUBCLASS = TAP::Harness::Restricted
+
+# our cpanm invocation, full-length
+CPANM = HARNESS_OPTIONS=$(HARNESS_OPTIONS) HARNESS_SUBCLASS=$(HARNESS_SUBCLASS) $(PERL) ./cpanm
+
 META_DIR = $(OURBUILD)/lib/perl5/$(ARCHNAME)/.meta
 installed_json = $(wildcard $(META_DIR)/*/install.json)
 test_installed = $(addsuffix .test,$(installed_json))
 show_installed = $(addsuffix .show,$(installed_json))
+
+# shortcut function: get the pathname from a .meta/*/install.json
+installed_json_to_pathname = `json_xs -e '$$_ = $$_->{pathname}' -t string < $(basename $@)`
 
 override_dists := $(shell sed -e '/^\#/d' modules.list.overrides)
 
@@ -192,8 +197,7 @@ $(show_installed): $(installed_json)
 show-installed: $(show_installed)
 
 $(test_installed): $(installed_json)
-	HARNESS_OPTIONS= HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(TEST_CPANM_OPTS) \
-		`json_xs -e '$$_ = $$_->{pathname}' -t string < $(basename $@)`
+	$(CPANM) $(TEST_CPANM_OPTS) $(installed_json_to_pathname) 
 
 test-installed-packages: $(test_installed)
 
