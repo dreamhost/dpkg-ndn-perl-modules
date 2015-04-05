@@ -13,8 +13,6 @@ Build-Depends:
  netbase,
  gzip,
  libisl-dev,
- libgcc-4.8-dev,
- libmpfr4-dev,
  libc6-dev,
  linux-libc-dev,
  libjson-xs-perl (>= 2.340),
