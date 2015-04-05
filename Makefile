@@ -203,7 +203,7 @@ test_output      = $(test_output_dir)/$(lastword $(strip $(subst /, ,$(dir $@)))
 
 $(test_installed): $(installed_json)
 	$(CPANM) $(TEST_CPANM_OPTS) $(installed_json_to_pathname) 2>&1 | tee $(test_output)
-	grep -q '^! Testing \S* failed' $(test_output) && ( awk '{ print $$6 }' $(test_output) | xargs cat ; exit 1 )
+	grep -q '^! Testing \S* failed' $(test_output) && ( awk '{ print $$6 }' $(test_output) | xargs cat ; exit 1 ) ||:
 
 test-installed-packages: $(test_installed)
 
