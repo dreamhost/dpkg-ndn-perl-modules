@@ -171,7 +171,7 @@ build.sh: build.sh.tmpl modules.list
 	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> build.sh
 	cat modules.list \
 		| sed -e '/^#/d' \
-		| xargs -L1 echo "HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(BUILD_CPANM_OPTS)" \
+		| xargs -L1 echo "$(CPANM) $(BUILD_CPANM_OPTS)" \
 		>> build.sh
 
 install:
