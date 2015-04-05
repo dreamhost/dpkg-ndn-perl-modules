@@ -135,13 +135,13 @@ rebuild-dpan: dev-clean
 # targets that will get invoked by dh: clean, build, test
 
 clean:
-	rm -rf our-build/ build.sh built.flag
+	rm -rf our-build/ build.sh build-stamp
 
-build: built.flag
+build: build-stamp
 
-built.flag: build.sh
+build-stamp: build.sh
 	time ./build.sh
-	touch built.flag
+	touch build-stamp
 
 refresh.sh: build.sh.tmpl modules.list
 	cp build.sh.tmpl $@ 

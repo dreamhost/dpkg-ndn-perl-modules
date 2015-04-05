@@ -6,3 +6,4 @@ debian/ndn-perl-modules.substvars
 debian/ndn-perl-modules
 debian/travis/deploy_id
 build.sh
+build-stamp
