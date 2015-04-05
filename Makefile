@@ -45,7 +45,7 @@ installed_json_to_pathname = `json_xs -e '$$_ = $$_->{pathname}' -t string < $(b
 
 override_dists := $(shell sed -e '/^\#/d' modules.list.overrides)
 
-tmpfile := $(shell tempfile)
+tmpfile := $(shell mktemp --tmpdir commit-msg.XXXXXXXX)
 
 # this handles directory recursion, whereas install does not *le sigh*.  add a
 # 'v' to have it tell you what it's doing.
