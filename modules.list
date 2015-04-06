@@ -24,7 +24,6 @@ IO::Prompt
 
 Readonly::XS
 CGI
-Net::FTP
 LWP::UserAgent
 
 DBD::SQLite
@@ -124,7 +123,6 @@ Hash::MultiValue
 IO::Compress::Gzip
 IO
 IO::Scalar
-IO::Socket::SSL
 IO::String
 JSON
 JSON::XS
@@ -251,7 +249,6 @@ Term::ProgressBar::Simple
 Perl::Tidy
 REST::Google::Apps::Provisioning
 Crypt::Primes
-IO::Prompt
 Want
 Net::Fastly
 Reindeer
