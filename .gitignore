@@ -7,3 +7,5 @@ debian/ndn-perl-modules
 debian/travis/deploy_id
 build.sh
 build-stamp
+test-out/
+built-dists/

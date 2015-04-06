@@ -1,39 +1,56 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
+# how we invoke our ndn-perl; note how things can be tweaked by overriding
+# various variable settings.
+NDN_PERL = /opt/ndn-perl/bin/perl
+
 SYS_PERL    := $(shell which perl)
-PERL        := PERL5LIB="" PERL_CPANM_OPT="" /opt/ndn-perl/bin/perl
-PERL_PREFIX := $(shell $(PERL) -MConfig -E 'say $$Config{prefix}')
-SITELIB     := $(shell $(PERL) -MConfig -E 'say $$Config{sitelib}')
-SITEARCH    := $(shell $(PERL) -MConfig -E 'say $$Config{sitearch}')
-ARCHNAME    := $(shell $(PERL) -MConfig -E 'say $$Config{archname}')
-BINDIR      := $(shell $(PERL) -MConfig -E 'say $$Config{bindir}')
+PERL_PREFIX := $(shell $(NDN_PERL) -MConfig -E 'say $$Config{prefix}')
+SITELIB     := $(shell $(NDN_PERL) -MConfig -E 'say $$Config{sitelib}')
+SITEARCH    := $(shell $(NDN_PERL) -MConfig -E 'say $$Config{sitearch}')
+ARCHNAME    := $(shell $(NDN_PERL) -MConfig -E 'say $$Config{archname}')
+BINDIR      := $(shell $(NDN_PERL) -MConfig -E 'say $$Config{scriptdir}')
 
-NDN_LIB := $(PERL_PREFIX)/modules/perl5
-NDN_BIN := $(BINDIR)
-NDN_MAN := $(PERL_PREFIX)/modules/man
+NDN_LIB = $(PERL_PREFIX)/modules/perl5
+NDN_BIN = $(BINDIR)
+NDN_MAN = $(PERL_PREFIX)/modules/man
 
-# this should be changed to 'Task::NDN' or the like
-PRIMARY_DIST := $(shell cat modules.list)
+TO_INSTALL := $(shell sed -e '/^\#/d' modules.list)
+
 #DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
-DPAN_LOCATION    := ./dists/
-DPAN_URI         := file://$(shell pwd)/dists/
+DPAN_LOCATION     = ./dists/
+DPAN_URI          = file://$(shell pwd)/dists/
 DPAN_BUILD_DISTS := $(shell sed -e '/^\#/d' modules.list)
-OURBUILD         := our-build
-DPAN_CPANM_OPTS  := -q --self-contained -L scratch/ --save-dists=dists
-BASE_CPANM_OPTS  := -q --from $(DPAN_URI) -L $(OURBUILD)
-BUILD_CPANM_OPTS := $(BASE_CPANM_OPTS) --man-pages --notest
-TEST_CPANM_OPTS  := $(BASE_CPANM_OPTS) --test-only
+OURBUILD          = our-build
+DPAN_CPANM_OPTS   = -q --self-contained -L scratch/ --save-dists=dists
+BASE_CPANM_OPTS   = -q --from $(DPAN_URI) -L $(OURBUILD)
+BUILD_CPANM_OPTS  = $(BASE_CPANM_OPTS) --man-pages --notest
+TEST_CPANM_OPTS   = $(BASE_CPANM_OPTS) --test-only
 
 # our build target
-INC_OURBUILD := -I $(OURBUILD)/lib/perl5 -I $(OURBUILD)/lib/perl5/$(ARCHNAME)
+INC_OURBUILD = -I $(OURBUILD)/lib/perl5/$(ARCHNAME) -I $(OURBUILD)/lib/perl5
 
-# testing options
-HARNESS_OPTIONS  =
-HARNESS_SUBCLASS = TAP::Harness::Restricted
+# testing options (mostly)
+env_automated_testing = 1
+env_harness_options   =
+env_harness_subclass  = TAP::Harness::Restricted
+env_perl5lib          =
+env_perl_cpanm_home   = $(abspath cpanm-home)
+
+# how we invoke our ndn-perl; note how things can be tweaked by overriding
+# various variable settings.
+PERL = PERL5LIB=$(env_perl5lib) \
+	   PERL_CPANM_HOME=$(env_perl_cpanm_home) \
+	   AUTOMATED_TESTING=$(env_automated_testing) \
+	   HARNESS_SUBCLASS=$(env_harness_subclass) \
+	   HARNESS_OPTIONS=$(env_harness_options) \
+	   $(NDN_PERL)
+
+PROVE = $(PERL) $(INC_OURBUILD) $(BINDIR)/prove $(INC_OURBUILD)
 
 # our cpanm invocation, full-length
-CPANM = HARNESS_OPTIONS=$(HARNESS_OPTIONS) HARNESS_SUBCLASS=$(HARNESS_SUBCLASS) $(PERL) ./cpanm
+CPANM = $(PERL) ./cpanm
 
 META_DIR = $(OURBUILD)/lib/perl5/$(ARCHNAME)/.meta
 installed_json = $(wildcard $(META_DIR)/*/install.json)
@@ -108,8 +125,7 @@ refresh-dpan: refresh-dists
 	$(MAKE) refresh-index
 	$(MAKE) commit-dists
 
-refresh-dists: CPAN_BUILD_OPTS := $(DPAN_BUILD_OPTS)
-#refresh-dists: PERL            := $(SYS_PERL)
+refresh-dists: CPAN_BUILD_OPTS = $(DPAN_BUILD_OPTS)
 refrest-dists: build
 
 # note we deliberately do *not* set a CPAN mirror here.  This is intentional.
@@ -130,7 +146,7 @@ refresh-index:
 	orepan2-gc $(DPAN_LOCATION)
 
 show-outdated:
-	orepan2-audit \
+	@orepan2-audit \
 		--darkpan $(DPAN_LOCATION)/modules/02packages.details.txt.gz \
 		--cpan http://cpan.metacpan.org/modules/02packages.details.txt \
 		--show outdated-modules
@@ -141,30 +157,51 @@ rebuild-dpan: dev-clean
 
 # targets that will get invoked by dh: clean, build, test
 
-clean:
-	rm -rf our-build/ build.sh build-stamp
+clean: clean-cpanm-home clean-built-dists
+	rm -rf our-build/ build.sh build-stamp build-tng-stamp
 
-build: build-stamp
+clean-cpanm-home:
+	rm -rf cpanm-home
 
-build-stamp: build.sh
-	time ./build.sh
-	touch build-stamp
+clean-built-dists:
+	rm -rf built-dists
 
-refresh.sh: build.sh.tmpl modules.list
-	cp build.sh.tmpl $@ 
-	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> $@
-	cat modules.list \
-		| sed -e '/^#/d' \
-		| xargs -L1 echo "HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(BUILD_CPANM_OPTS)" \
-		>> $@
+cpanm-home:
+	mkdir -p cpanm-home
 
 module_deps := $(shell sed -e "/^\#/d" modules.list)
 module_targets := $(subst ::,-,$(module_deps))
-.PHONY: $(module_targets) build-ng
+.PHONY: $(module_targets) build-ng built-tng
+
+build-tng: build-tng-stamp
+
+build-tng-stamp: modules.list
+	for target in $(module_targets) ; do $(MAKE) $$target ; done
+	touch $@
+
+build: build-stamp
+
+build-stamp: build.sh | cpanm-home built-dists
+	time ./build.sh
+	touch build-stamp
+
+built-dists:
+	mkdir -p built-dists
+
+refresh.sh: build.sh.tmpl modules.list
+	cp build.sh.tmpl $@
+	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> $@
+	cat modules.list \
+		| sed -e '/^#/d' \
+		| xargs -L1 echo "$(CPANM) $(BUILD_CPANM_OPTS)" \
+		>> $@
+
 build-ng: $(module_targets)
 
-$(module_targets):
-	HARNESS_SUBCLASS=TAP::Harness::Restricted $(PERL) ./cpanm $(BUILD_CPANM_OPTS) $(subst -,::,$@)
+TAP-Harness-Restricted: HARNESS_SUBCLASS=
+$(module_targets): | cpanm-home built-dists
+	$(CPANM) $(BUILD_CPANM_OPTS) $(subst -,::,$@)
+	find $(env_perl_cpanm_home)/work -mindepth 2 -maxdepth 2 -type d -exec mv -v {} built-dists/ \;
 
 build.sh: build.sh.tmpl modules.list
 	cp build.sh.tmpl build.sh
@@ -189,6 +226,7 @@ install:
 	find $(DESTDIR) -name '.packlist' -exec rm -vf {} \;
 	find $(DESTDIR) -name 'perllocal.pod' -exec rm -vf {} \;
 	find $(DESTDIR) -empty -type d -delete
+	find $(DESTDIR) -name '*.pm' -exec chmod 0644 {} \;
 	chmod -Rf a+rX,u+w,g-w,o-w $(DESTDIR)
 
 $(installed_json):
@@ -198,12 +236,26 @@ $(show_installed): $(installed_json)
 
 show-installed: $(show_installed)
 
-test_output_dir := $(shell mktemp --tmpdir -d test-output-dir.XXXXXXXXX)
-test_output      = $(test_output_dir)/$(lastword $(strip $(subst /, ,$(dir $@))))-out
+test_output_dir = test-out
+test_output     = $(test_output_dir)/$(lastword $(strip $(subst /, ,$(notdir $@))))
 
 $(test_installed): $(installed_json)
 	$(CPANM) $(TEST_CPANM_OPTS) $(installed_json_to_pathname) 2>&1 | tee $(test_output)
 	grep -q '^! Testing \S* failed' $(test_output) && ( awk '{ print $$6 }' $(test_output) | xargs cat ; exit 1 ) ||:
+
+test_dirs = $(wildcard built-dists/*)
+.PHONY: test-ng clean-test-out $(test_dirs)
+test-out:
+	mkdir -p test-out
+clean-test-out:
+	rm -rf test-out
+test-ng: built-tng $(test_dirs)
+$(test_dirs): OURBUILD = ../../our-build
+$(test_dirs): test_output_dir = $(abspath test-out)
+$(test_dirs): | test-out
+	cd $@ && ( $(PROVE) -r $(realpath $@/t) $(realpath $@/test.pl) 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
+	mv $(test_output) $(test_output)-passed
+	gzip $(test_output)-passed
 
 test-installed-packages: $(test_installed)
 
