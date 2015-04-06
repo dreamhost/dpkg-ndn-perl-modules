@@ -1,20 +1,17 @@
 # special-case'd out at the moment
+# TAP::Harness::Restricted
 
 Module::Build::Tiny
 Module::Build
 Test::More
 
-# validation utilities
-App::cpanm::meta::checker
 V
 
 common::sense
 DBI
 IPC::ShareLite
-App::Cmd
 Path::Tiny
 Smart::Comments
-OrePAN2
 Mozilla::CA
 MooseX::AttributeShortcuts
 ExtUtils::Depends
@@ -252,6 +249,9 @@ Crypt::Primes
 Want
 Net::Fastly
 Reindeer
+OrePAN2
+App::Cmd
+App::cpanm::meta::checker
 
 # wha..?!
 #perl5i
