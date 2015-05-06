@@ -1,8 +1,12 @@
 # certain tests failing randomly marked as TODO
 #Net::Whois::IANA
-git://github.com/dreamhost/Net-Whois-IANA.git@master
+https://github.com/dreamhost/Net-Whois-IANA.git@master
 
 # timeout is set too short for timeout tests to pass *le sigh*
 # https://github.com/Yubico/yubico-perl-client/pull/2
 #AnyEvent::Yubico
 https://github.com/dreamhost/AnyEvent-Yubico.git@master
+
+# odd sanity failure
+# https://github.com/rafl/b-compiling/pull/2
+https://github.com/RsrchBoy/b-compiling.git@topic/sanity-test
