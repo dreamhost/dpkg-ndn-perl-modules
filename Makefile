@@ -1,6 +1,17 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
+# TODO:
+#
+# [ ] DPAN build/rebuild/refresh targets.
+# [ ] Build targets swizzle
+#   [ ] stash-built-tree-to-test
+# [ ] Test targets swizzle
+# [ ] clean targets
+# [ ] group utility targets
+
+
+
 # how we invoke our ndn-perl; note how things can be tweaked by overriding
 # various variable settings.
 NDN_PERL = /opt/ndn-perl/bin/perl
