@@ -4,6 +4,7 @@
 # TODO:
 #
 # [ ] DPAN build/rebuild/refresh targets.
+#   [x] Move utility targets
 # [ ] Build targets swizzle
 #   [ ] stash-built-tree-to-test
 # [ ] Test targets swizzle
@@ -59,7 +60,7 @@ PERL = PERL5LIB=$(env_perl5lib) \
 	   HARNESS_OPTIONS=$(env_harness_options) \
 	   $(NDN_PERL)
 
-PROVE = $(PERL) $(INC_OURBUILD) $(BINDIR)/prove $(INC_OURBUILD)
+PROVE = $(PERL) $(INC_OURBUILD) $(BINDIR)/prove
 
 # our cpanm invocation, full-length
 CPANM = $(PERL) ./cpanm
@@ -252,27 +253,46 @@ show-installed: $(show_installed)
 test_output_dir = test-out
 test_output     = $(test_output_dir)/$(lastword $(strip $(subst /, ,$(notdir $@))))
 
+#test_dirs = $(wildcard built-dists/*)
+#test_dirs = $(wildcard cpanm-home/workdir.*/work/*/*)
+#test_dirs = $(shell find $(env_perl_cpanm_home)/work -mindepth 2 -maxdepth 2 -type d -exec mv -vf {} built-dists/ \;)
+test_dirs = $(shell find $(env_perl_cpanm_home)/ -mindepth 4 -maxdepth 4 -type d)
+
+show-test-dirs:
+	# $(test_dirs)
+
+#test: build $(test_dirs)
+test: $(test_dirs)
+$(test_dirs): OURBUILD = ../../../../../our-build
+$(test_dirs): test_output_dir = $(abspath test-out)
+$(test_dirs): | test-out
+	#cd $@ && ( $(PROVE) -r $(realpath $@/t) $(realpath $@/test.pl) 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
+	#cd $@ && ( $(PROVE) -r t/ test.pl 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
+	#cd $@ && ( $(PROVE) -r $(shell test -d t/ && echo t/) $(shell test -f test.pl && echo test.pl) 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
+	#
+	cd $@ ln -sfr $(OURBUILD) blib
+	#cd $@ && ( $(PROVE) -br $(notdir $(realpath $@/t $@/test.pl)) 1>$(test_output) 2>&1 ) || exit 1
+	cd $@ && ( $(PROVE) -br $(notdir $(realpath $@/t)) 1>$(test_output) 2>&1 ) || exit 1
+	mv $(test_output) $(test_output)-passed
+	gzip -f $(test_output)-passed
+
+######################################################################
+# test installed packages (old)
+
+test-installed-packages: $(test_installed)
+
 $(test_installed): $(installed_json)
 	$(CPANM) $(TEST_CPANM_OPTS) $(installed_json_to_pathname) 2>&1 | tee $(test_output)
 	grep -q '^! Testing \S* failed' $(test_output) && ( awk '{ print $$6 }' $(test_output) | xargs cat ; exit 1 ) ||:
 
-test_dirs = $(wildcard built-dists/*)
-.PHONY: test-ng clean-test-out $(test_dirs)
+######################################################################
+# test utility targets
+
+.PHONY: clean-test-out $(test_dirs)
 test-out:
-	mkdir -p test-out
+	mkdir -p $(test_output_dir)
 clean-test-out:
-	rm -rf test-out
-test-ng: built-tng $(test_dirs)
-$(test_dirs): OURBUILD = ../../our-build
-$(test_dirs): test_output_dir = $(abspath test-out)
-$(test_dirs): | test-out
-	cd $@ && ( $(PROVE) -r $(realpath $@/t) $(realpath $@/test.pl) 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
-	mv $(test_output) $(test_output)-passed
-	gzip $(test_output)-passed
-
-test-installed-packages: $(test_installed)
-
-test: test-installed-packages
+	rm -rf $(test_output_dir)
 
 ######################################################################
 # Utility targets
