@@ -173,7 +173,11 @@ cpanm-home:
 
 module_deps := $(shell sed -e "/^\#/d" modules.list)
 module_targets := $(subst ::,-,$(module_deps))
-.PHONY: $(module_targets)
+
+.PHONY: $(module_targets) show-module-targets
+
+show-module-targets:
+	# $(module_targets)
 
 ######################################################################
 # build-tng
