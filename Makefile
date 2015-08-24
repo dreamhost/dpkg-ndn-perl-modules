@@ -71,7 +71,7 @@ INSTALL = cp -pRu
 # targets to control our dist cache, etc
 
 .PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
-	refresh-dists refresh-index help inject-override-dists \
+	refresh-dists refresh-index inject-override-dists \
 	test-installed-packages $(test_installed) \
 	show-installed-packages $(show_installed) \
 	$(installed_json)
@@ -156,6 +156,9 @@ rebuild-dpan: dev-clean
 
 # targets that will get invoked by dh: clean, build, test
 
+######################################################################
+# cleanup, cleanup, everybody everywhere!
+
 clean: clean-cpanm-home clean-built-dists
 	rm -rf our-build/ build.sh build-stamp build-tng-stamp
 
@@ -170,13 +173,23 @@ cpanm-home:
 
 module_deps := $(shell sed -e "/^\#/d" modules.list)
 module_targets := $(subst ::,-,$(module_deps))
-.PHONY: $(module_targets) build-ng built-tng
+.PHONY: $(module_targets)
+
+######################################################################
+# build-tng
+
+.PHONY: built-tng
 
 build-tng: build-tng-stamp
 
 build-tng-stamp: modules.list
 	for target in $(module_targets) ; do $(MAKE) $$target ; done
 	touch $@
+
+######################################################################
+# build
+
+.PHONY: build
 
 build: build-stamp
 
@@ -195,13 +208,6 @@ refresh.sh: build.sh.tmpl modules.list
 		| xargs -L1 echo "$(CPANM) $(BUILD_CPANM_OPTS)" \
 		>> $@
 
-build-ng: $(module_targets)
-
-TAP-Harness-Restricted: HARNESS_SUBCLASS=
-$(module_targets): | cpanm-home built-dists
-	$(CPANM) $(BUILD_CPANM_OPTS) $(subst -,::,$@)
-	find $(env_perl_cpanm_home)/work -mindepth 2 -maxdepth 2 -type d -exec mv -v {} built-dists/ \;
-
 build.sh: build.sh.tmpl modules.list
 	cp build.sh.tmpl build.sh
 	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> build.sh
@@ -209,6 +215,29 @@ build.sh: build.sh.tmpl modules.list
 		| sed -e '/^#/d' \
 		| xargs -L1 echo "$(CPANM) $(BUILD_CPANM_OPTS)" \
 		>> build.sh
+
+######################################################################
+# build-ng
+
+.PHONY: built-ng
+
+build-ng: build-ng-stamp
+
+build-ng-stamp: $(module_targets)
+	touch build-ng-stamp
+
+######################################################################
+# module build targets, and overrides
+
+TAP-Harness-Restricted: HARNESS_SUBCLASS=
+$(module_targets): | cpanm-home built-dists
+	$(CPANM) $(BUILD_CPANM_OPTS) $(subst -,::,$@)
+	find $(env_perl_cpanm_home)/work -mindepth 2 -maxdepth 2 -type d -exec mv -v {} built-dists/ \;
+
+######################################################################
+# install
+
+.PHONY: install
 
 install:
 	# perl libs...
@@ -235,6 +264,11 @@ $(show_installed): $(installed_json)
 
 show-installed: $(show_installed)
 
+######################################################################
+# test (undifferentiated, as of yet)
+
+.PHONY: test
+
 test_output_dir = test-out
 test_output     = $(test_output_dir)/$(lastword $(strip $(subst /, ,$(notdir $@))))
 
@@ -259,6 +293,11 @@ $(test_dirs): | test-out
 test-installed-packages: $(test_installed)
 
 test: test-installed-packages
+
+######################################################################
+# help
+
+.PHONY: help
 
 help:
 	# Hi!  This is the make program, telling you about this delicious Makefile
