@@ -53,7 +53,7 @@ env_perl_cpanm_home   = $(abspath cpanm-home)
 # how we invoke our ndn-perl; note how things can be tweaked by overriding
 # various variable settings.
 PERL = PERL5LIB=$(env_perl5lib) \
-	   PERL_CPANM_HOME=$(env_perl_cpanm_home) \
+	   PERL_CPANM_HOME=$(abspath $(shell mktemp -d $(env_perl_cpanm_home)/workdir.XXXXXXX)) \
 	   AUTOMATED_TESTING=$(env_automated_testing) \
 	   HARNESS_SUBCLASS=$(env_harness_subclass) \
 	   HARNESS_OPTIONS=$(env_harness_options) \
@@ -88,7 +88,6 @@ module_targets := $(subst ::,-,$(module_deps))
 
 .PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
 	refresh-dists refresh-index inject-override-dists \
-	$(module_targets) \
 	test-installed-packages $(test_installed) \
 	show-installed-packages $(show_installed) \
 	$(installed_json)
@@ -182,72 +181,29 @@ clean: clean-cpanm-home clean-built-dists
 	rm -rf our-build/ build.sh build-stamp build-tng-stamp
 
 clean-cpanm-home:
-	rm -rf cpanm-home
+	rm -rf $(env_perl_cpanm_home)/*
 
 clean-built-dists:
 	rm -rf built-dists
 
 cpanm-home:
-	mkdir -p cpanm-home
-
-module_deps := $(shell sed -e "/^\#/d" modules.list)
-module_targets := $(subst ::,-,$(module_deps))
-
-.PHONY: $(module_targets) show-module-targets
+	mkdir -p $(env_perl_cpanm_home)
 
 show-module-targets:
 	# $(module_targets)
 
 ######################################################################
-# build-tng
-
-.PHONY: built-tng
-
-build-tng: build-tng-stamp
-
-build-tng-stamp: modules.list
-	for target in $(module_targets) ; do $(MAKE) $$target ; done
-	touch $@
-
-######################################################################
-# build
+# build (overall)
 
 .PHONY: build
 
 build: build-stamp
 
-build-stamp: build.sh | cpanm-home built-dists
-	time ./build.sh
+build-stamp: modules.list $(module_targets)
 	touch build-stamp
 
 built-dists:
 	mkdir -p built-dists
-
-refresh.sh: build.sh.tmpl modules.list
-	cp build.sh.tmpl $@
-	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> $@
-	cat modules.list \
-		| sed -e '/^#/d' \
-		| xargs -L1 echo "$(CPANM) $(BUILD_CPANM_OPTS)" \
-		>> $@
-
-build.sh: build.sh.tmpl modules.list
-	cp build.sh.tmpl build.sh
-	echo "$(PERL) ./cpanm $(BUILD_CPANM_OPTS) TAP::Harness::Restricted" >> build.sh
-	cat modules.list \
-		| sed -e '/^#/d' \
-		| xargs -L1 echo "$(CPANM) $(BUILD_CPANM_OPTS)" \
-		>> build.sh
-
-######################################################################
-# build-ng
-
-.PHONY: built-ng
-
-build-ng: build-ng-stamp
-
-build-ng-stamp: $(module_targets)
-	touch build-ng-stamp
 
 ######################################################################
 # module build targets, and overrides
