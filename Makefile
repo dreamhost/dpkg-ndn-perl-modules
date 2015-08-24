@@ -95,15 +95,14 @@ dev-clean: clean
 	rm -rf dists/ scratch/
 
 commit-dists:
-	# commiting changes to dists/
+	# commiting changes to envpan/
 	git add -A dists/
 	echo 'CPAN Updates' >> $(tmpfile)
 	echo                >> $(tmpfile)
 	git status --porcelain \
 		| perl -nE 'chomp; say unless /^[ M\?]/' \
 		| grep -v  '02packages' \
-		| perl -pE 's!dists/authors/id/./../!!m' \
-		| sed -e 's/\// /' \
+		| perl -pE 's!envpan/authors/id/./../!!m' \
 		| sed -e 's/\// /' \
 		| sed -e 's/^A/ADDED/; s/^D/DELETED/; s/^M/MODIFIED/' \
 		| sort -dk3 \
