@@ -34,7 +34,8 @@ DPAN_LOCATION     = ./dists/
 DPAN_URI          = file://$(shell pwd)/dists/
 DPAN_BUILD_DISTS := $(shell sed -e '/^\#/d' modules.list)
 OURBUILD          = our-build
-DPAN_CPANM_OPTS   = -q --self-contained -L scratch/ --save-dists=dists
+#DPAN_CPANM_OPTS   = $$PERL_CPANM_OPTS -L scratch/ --notest --save-dists=dists
+DPAN_CPANM_OPTS   = -q -L scratch/ --notest --save-dists=dists
 BASE_CPANM_OPTS   = -q --from $(DPAN_URI) -L $(OURBUILD)
 BUILD_CPANM_OPTS  = $(BASE_CPANM_OPTS) --man-pages --notest
 TEST_CPANM_OPTS   = $(BASE_CPANM_OPTS) --test-only
@@ -79,10 +80,15 @@ tmpfile := $(shell mktemp --tmpdir commit-msg.XXXXXXXX)
 # 'v' to have it tell you what it's doing.
 INSTALL = cp -pRu
 
+module_deps := $(shell sed -e "/^\#/d" modules.list)
+module_targets := $(subst ::,-,$(module_deps))
+
+.PHONY: $(module_targets) show-module-targets
 # targets to control our dist cache, etc
 
 .PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
 	refresh-dists refresh-index inject-override-dists \
+	$(module_targets) \
 	test-installed-packages $(test_installed) \
 	show-installed-packages $(show_installed) \
 	$(installed_json)
@@ -105,8 +111,47 @@ ndn-libdir:
 dev-clean: clean
 	rm -rf dists/ scratch/
 
-commit-dists:
-	# commiting changes to envpan/
+# targets that will get invoked by dh: clean, build, test
+
+######################################################################
+# Build our DPAN (aka dists/)
+
+.PHONY: dists dpan refresh-dists refresh-dpan
+
+# cheating here, I know.
+dpan: cpanm-home
+	rm -rf scratch/ cpanm-home/*
+	perl ./cpanm -q $(DPAN_CPANM_OPTS) Tap::Harness::Restricted Module::Build::Tiny Test::More
+	$(MAKE) refresh-dists
+	$(MAKE) dpan-index
+	$(MAKE) dpan-gc
+	$(MAKE) dpan-commit-dists
+	rm -rf scratch/ cpanm-home/*
+
+refresh-dists: BUILD_CPANM_OPTS = $(DPAN_CPANM_OPTS)
+refresh-dists: CPANM = PERL_CPANM_HOME=$(abspath $(shell mktemp -d cpanm-home/workdir.XXXXXXX)) perl ./cpanm
+refresh-dists: $(module_targets)
+
+######################################################################
+# DPAN utility targets
+
+.PHONY: dpan-outdated dpan-gc dpan-index dpan-commit-dists
+
+dpan-gc:
+	orepan2-gc dists
+
+dpan-index:
+	orepan2-indexer --allow-dev $(DPAN_LOCATION)
+	orepan2-gc $(DPAN_LOCATION)
+
+dpan-outdated:
+	@orepan2-audit \
+		--darkpan $(DPAN_LOCATION)/modules/02packages.details.txt.gz \
+		--cpan http://cpan.metacpan.org/modules/02packages.details.txt \
+		--show outdated-modules
+
+dpan-commit-dists:
+	# commiting changes to dists/
 	git add -A dists/
 	echo 'CPAN Updates' >> $(tmpfile)
 	echo                >> $(tmpfile)
@@ -121,56 +166,19 @@ commit-dists:
 		| tee -a $(tmpfile)
 	git commit --file=$(tmpfile)
 
-dists: refresh-dists
+# FIXME TODO ummm....  do we need this target invoked when
+# building/refreshing the dpan??
 
 # see: https://github.com/tokuhirom/OrePAN2/issues/22
 inject-override-dists:
 	for i in $(override_dists) ; do orepan2-inject --no-generate-index --allow-dev $$i dists ; done
 	orepan2-indexer --allow-dev $(DPAN_LOCATION)
 
-gc:
-	orepan2-gc dists
-
-refresh-dpan: refresh-dists
-	$(MAKE) refresh-index
-	$(MAKE) commit-dists
-
-refresh-dists: CPAN_BUILD_OPTS = $(DPAN_BUILD_OPTS)
-refrest-dists: build
-
-# note we deliberately do *not* set a CPAN mirror here.  This is intentional.
-refresh-dists-xxx:
-	# download dists
-	$(PERL) ./cpanm -q --exclude-vendor \
-		--self-contained -L scratch/ --save-dists=dists \
-		--notest \
-		$(DPAN_BUILD_DISTS)
-
-dpan: index
-
-index: dists
-	$(MAKE) refresh-index
-
-refresh-index:
-	orepan2-indexer --allow-dev $(DPAN_LOCATION)
-	orepan2-gc $(DPAN_LOCATION)
-
-show-outdated:
-	@orepan2-audit \
-		--darkpan $(DPAN_LOCATION)/modules/02packages.details.txt.gz \
-		--cpan http://cpan.metacpan.org/modules/02packages.details.txt \
-		--show outdated-modules
-
-rebuild-dpan: dev-clean
-	$(MAKE) dpan
-	$(MAKE) commit-dists
-
-# targets that will get invoked by dh: clean, build, test
-
 ######################################################################
 # cleanup, cleanup, everybody everywhere!
 
 clean: clean-cpanm-home clean-built-dists
+	rm -rf scratch/
 	rm -rf our-build/ build.sh build-stamp build-tng-stamp
 
 clean-cpanm-home:
@@ -247,7 +255,8 @@ build-ng-stamp: $(module_targets)
 TAP-Harness-Restricted: HARNESS_SUBCLASS=
 $(module_targets): | cpanm-home built-dists
 	$(CPANM) $(BUILD_CPANM_OPTS) $(subst -,::,$@)
-	find $(env_perl_cpanm_home)/work -mindepth 2 -maxdepth 2 -type d -exec mv -v {} built-dists/ \;
+
+#find $(env_perl_cpanm_home)/work -mindepth 2 -maxdepth 2 -type d -exec mv -vf {} built-dists/ \;
 
 ######################################################################
 # install
