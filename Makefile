@@ -310,6 +310,15 @@ test-installed-packages: $(test_installed)
 test: test-installed-packages
 
 ######################################################################
+# Utility targets
+
+.PHONY: update-cpanm
+
+update-cpanm:
+	wget -O cpanm https://raw.githubusercontent.com/miyagawa/cpanminus/devel/cpanm
+	git commit -m 'Update cpanm' cpanm
+
+######################################################################
 # help
 
 .PHONY: help
@@ -361,3 +370,7 @@ help:
 	#
 	# lesser-used normal targets:
 	#   build.sh: generate the script used to build our modules
+	#
+	# Utility targets
+	#   update-cpanm   Pull down the latest fatpacked cpanm from github
+	#
