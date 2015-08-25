@@ -7,6 +7,9 @@ Test::More
 
 V
 
+Test::CleanNamespaces
+Test::Output
+
 common::sense
 DBI
 IPC::ShareLite
