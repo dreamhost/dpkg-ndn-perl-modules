@@ -54,16 +54,15 @@ env_perl_cpanm_home   = $(abspath cpanm-home)
 # how we invoke our ndn-perl; note how things can be tweaked by overriding
 # various variable settings.
 PERL = PERL5LIB=$(env_perl5lib) \
-	   PERL_CPANM_HOME=$(abspath $(shell mktemp -d $(env_perl_cpanm_home)/workdir.XXXXXXX)) \
 	   AUTOMATED_TESTING=$(env_automated_testing) \
 	   HARNESS_SUBCLASS=$(env_harness_subclass) \
 	   HARNESS_OPTIONS=$(env_harness_options) \
 	   $(NDN_PERL)
 
-PROVE = $(PERL) $(INC_OURBUILD) $(BINDIR)/prove
+perl_cpanm_home = PERL_CPANM_HOME=$(abspath $(shell mktemp -d $(env_perl_cpanm_home)/workdir.XXXXXXX))
 
-# our cpanm invocation, full-length
-CPANM = $(PERL) ./cpanm
+PROVE = $(perl_cpanm_home) $(PERL) $(INC_OURBUILD) $(BINDIR)/prove $(INC_OURBUILD)
+CPANM = $(perl_cpanm_home) $(PERL) ./cpanm
 
 META_DIR = $(OURBUILD)/lib/perl5/$(ARCHNAME)/.meta
 installed_json = $(wildcard $(META_DIR)/*/install.json)
