@@ -7,8 +7,13 @@ Test::More
 
 V
 
+# testing dependencies
+Devel::Hide
 Test::CleanNamespaces
 Test::Output
+Test::CheckDeps
+Test::Moose::More
+Test::Without::Module
 
 common::sense
 DBI
