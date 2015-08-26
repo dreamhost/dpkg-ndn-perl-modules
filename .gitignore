@@ -9,3 +9,4 @@ build.sh
 build-stamp
 test-out/
 built-dists/
+cpanm-home/
