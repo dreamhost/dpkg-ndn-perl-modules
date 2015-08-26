@@ -253,7 +253,10 @@ show-installed: $(show_installed)
 ######################################################################
 # test (undifferentiated, as of yet)
 
-.PHONY: test
+.PHONY: test retest
+
+retest: clean-test-out
+	$(MAKE) test
 
 test_output_dir = test-out
 test_output     = $(test_output_dir)/$(lastword $(strip $(subst /, ,$(notdir $@))))
@@ -363,4 +366,5 @@ help:
 	#
 	# Utility targets
 	#   update-cpanm   Pull down the latest fatpacked cpanm from github
+	#   retest     Reruns 'make test' after obliterating test-out/*
 	#
