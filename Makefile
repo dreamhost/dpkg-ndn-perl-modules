@@ -177,7 +177,9 @@ inject-override-dists:
 ######################################################################
 # cleanup, cleanup, everybody everywhere!
 
-clean: clean-cpanm-home clean-built-dists
+.PHONY: clean clean-cpan-home clean-built-diosts clean-test-out
+
+clean: clean-cpanm-home clean-built-dists clean-test-out
 	rm -rf scratch/
 	rm -rf our-build/ build.sh build-stamp build-tng-stamp
 
@@ -186,6 +188,9 @@ clean-cpanm-home:
 
 clean-built-dists:
 	rm -rf built-dists
+
+clean-test-out:
+	rm -rf test-out/
 
 cpanm-home:
 	mkdir -p $(env_perl_cpanm_home)
