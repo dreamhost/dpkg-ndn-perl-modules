@@ -3,10 +3,10 @@
 
 # TODO:
 #
-# [ ] DPAN build/rebuild/refresh targets.
+# [x] DPAN build/rebuild/refresh targets.
 #   [x] Move utility targets
-# [ ] Build targets swizzle
-#   [ ] stash-built-tree-to-test
+# [x] Build targets swizzle
+#   [x] stash-built-tree-to-test
 # [ ] Test targets swizzle
 # [ ] clean targets
 # [ ] group utility targets
@@ -30,12 +30,10 @@ NDN_MAN = $(PERL_PREFIX)/modules/man
 
 TO_INSTALL := $(shell sed -e '/^\#/d' modules.list)
 
-#DPAN_BUILD_DISTS := $(PRIMARY_DIST) Module::Build
 DPAN_LOCATION     = ./dists/
 DPAN_URI          = file://$(shell pwd)/dists/
 DPAN_BUILD_DISTS := $(shell sed -e '/^\#/d' modules.list)
 OURBUILD          = our-build
-#DPAN_CPANM_OPTS   = $$PERL_CPANM_OPTS -L scratch/ --notest --save-dists=dists
 DPAN_CPANM_OPTS   = -q -L scratch/ --notest --save-dists=dists
 BASE_CPANM_OPTS   = -q --from $(DPAN_URI) -L $(OURBUILD)
 BUILD_CPANM_OPTS  = $(BASE_CPANM_OPTS) --man-pages --notest
@@ -61,16 +59,8 @@ PERL = PERL5LIB=$(env_perl5lib) \
 
 perl_cpanm_home = PERL_CPANM_HOME=$(abspath $(shell mktemp -d $(env_perl_cpanm_home)/workdir.XXXXXXX))
 
-PROVE = $(perl_cpanm_home) $(PERL) $(INC_OURBUILD) $(BINDIR)/prove $(INC_OURBUILD)
+PROVE = $(perl_cpanm_home) $(PERL) $(INC_OURBUILD) $(BINDIR)/prove $(INC_OURBUILD) --harness $(env_harness_subclass)
 CPANM = $(perl_cpanm_home) $(PERL) ./cpanm
-
-META_DIR = $(OURBUILD)/lib/perl5/$(ARCHNAME)/.meta
-installed_json = $(wildcard $(META_DIR)/*/install.json)
-test_installed = $(addsuffix .test,$(installed_json))
-show_installed = $(addsuffix .show,$(installed_json))
-
-# shortcut function: get the pathname from a .meta/*/install.json
-installed_json_to_pathname = `json_xs -e '$$_ = $$_->{pathname}' -t string < $(basename $@)`
 
 override_dists := $(shell sed -e '/^\#/d' modules.list.overrides)
 
@@ -86,7 +76,7 @@ module_targets := $(subst ::,-,$(module_deps))
 .PHONY: $(module_targets) show-module-targets
 # targets to control our dist cache, etc
 
-.PHONY: archname dpan index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
+.PHONY: archname index ndn-prefix commit-dists rebuild-dpan ndn-libdir \
 	refresh-dists refresh-index inject-override-dists \
 	test-installed-packages $(test_installed) \
 	show-installed-packages $(show_installed) \
@@ -120,28 +110,28 @@ dev-clean: clean
 # cheating here, I know.
 dpan: cpanm-home
 	rm -rf scratch/ cpanm-home/*
-	perl ./cpanm -q $(DPAN_CPANM_OPTS) Tap::Harness::Restricted Module::Build::Tiny Test::More
+	perl ./cpanm -q $(DPAN_CPANM_OPTS) TAP::Harness::Restricted Module::Build::Tiny Test::More
 	$(MAKE) refresh-dists
 	$(MAKE) dpan-index
 	$(MAKE) dpan-gc
 	$(MAKE) dpan-commit-dists
-	rm -rf scratch/ cpanm-home/*
 
 refresh-dists: BUILD_CPANM_OPTS = $(DPAN_CPANM_OPTS)
-refresh-dists: CPANM = PERL_CPANM_HOME=$(abspath $(shell mktemp -d cpanm-home/workdir.XXXXXXX)) perl ./cpanm
+refresh-dists: CPANM = $(perl_cpanm_home) perl ./cpanm
 refresh-dists: $(module_targets)
 
 ######################################################################
 # DPAN utility targets
 
-.PHONY: dpan-outdated dpan-gc dpan-index dpan-commit-dists
+.PHONY: dpan-outdated dpan-gc dpan-index dpan-commit-dists \
+	inject-override-dists
 
 dpan-gc:
 	orepan2-gc dists
 
 dpan-index:
 	orepan2-indexer --allow-dev $(DPAN_LOCATION)
-	orepan2-gc $(DPAN_LOCATION)
+	#orepan2-gc $(DPAN_LOCATION)
 
 dpan-outdated:
 	@orepan2-audit \
@@ -171,7 +161,7 @@ dpan-commit-dists:
 # see: https://github.com/tokuhirom/OrePAN2/issues/22
 inject-override-dists:
 	for i in $(override_dists) ; do orepan2-inject --no-generate-index --allow-dev $$i dists ; done
-	orepan2-indexer --allow-dev $(DPAN_LOCATION)
+	orepan2-indexer $(DPAN_LOCATION)
 
 ######################################################################
 # cleanup, cleanup, everybody everywhere!
@@ -222,7 +212,7 @@ $(module_targets): | cpanm-home built-dists
 ######################################################################
 # install
 
-.PHONY: install
+.PHONY: install show-installed
 
 install:
 	# perl libs...
@@ -242,6 +232,14 @@ install:
 	find $(DESTDIR) -name '*.pm' -exec chmod 0644 {} \;
 	chmod -Rf a+rX,u+w,g-w,o-w $(DESTDIR)
 
+META_DIR = $(OURBUILD)/lib/perl5/$(ARCHNAME)/.meta
+installed_json = $(wildcard $(META_DIR)/*/install.json)
+test_installed = $(addsuffix .test,$(installed_json))
+show_installed = $(addsuffix .show,$(installed_json))
+
+# shortcut function: get the pathname from a .meta/*/install.json
+installed_json_to_pathname = `json_xs -e '$$_ = $$_->{pathname}' -t string < $(basename $@)`
+
 $(installed_json):
 
 $(show_installed): $(installed_json)
@@ -260,26 +258,22 @@ retest: clean-test-out
 test_output_dir = test-out
 test_output     = $(test_output_dir)/$(lastword $(strip $(subst /, ,$(notdir $@))))
 
-#test_dirs = $(wildcard built-dists/*)
-#test_dirs = $(wildcard cpanm-home/workdir.*/work/*/*)
-#test_dirs = $(shell find $(env_perl_cpanm_home)/work -mindepth 2 -maxdepth 2 -type d -exec mv -vf {} built-dists/ \;)
+# test all sources -- might be dupes, but that's OK
 test_dirs = $(shell find $(env_perl_cpanm_home)/ -mindepth 4 -maxdepth 4 -type d)
 
 show-test-dirs:
 	# $(test_dirs)
 
-#test: build $(test_dirs)
+prove_files = $@/t
+prove_opts  = -br
+test_cmd = $(if $(realpath $@/Build), ./Build test, make test)
+
+test: env_perl5lib = ../../../../../our-build/lib/perl5
 test: $(test_dirs)
-$(test_dirs): OURBUILD = ../../../../../our-build
+test: OURBUILD := $(abspath our-build/)
 $(test_dirs): test_output_dir = $(abspath test-out)
 $(test_dirs): | test-out
-	#cd $@ && ( $(PROVE) -r $(realpath $@/t) $(realpath $@/test.pl) 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
-	#cd $@ && ( $(PROVE) -r t/ test.pl 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
-	#cd $@ && ( $(PROVE) -r $(shell test -d t/ && echo t/) $(shell test -f test.pl && echo test.pl) 1>$(test_output) 2>&1 ) || (cat $(test_output) ; exit 1 )
-	#
-	cd $@ ln -sfr $(OURBUILD) blib
-	#cd $@ && ( $(PROVE) -br $(notdir $(realpath $@/t $@/test.pl)) 1>$(test_output) 2>&1 ) || exit 1
-	cd $@ && ( $(PROVE) -br $(notdir $(realpath $@/t)) 1>$(test_output) 2>&1 ) || exit 1
+	cd $@ && ( HARNESS_SKIP='t/dist/t/01_compile.t' $(PROVE) $(prove_opts) $(notdir $(realpath $(prove_files))) 1>$(test_output) 2>&1 ) || exit 1
 	mv $(test_output) $(test_output)-passed
 	gzip -f $(test_output)-passed
 
@@ -295,11 +289,9 @@ $(test_installed): $(installed_json)
 ######################################################################
 # test utility targets
 
-.PHONY: clean-test-out $(test_dirs)
+.PHONY: $(test_dirs)
 test-out:
 	mkdir -p $(test_output_dir)
-clean-test-out:
-	rm -rf $(test_output_dir)
 
 ######################################################################
 # Utility targets
